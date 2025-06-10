@@ -1,5 +1,5 @@
 import { sequence } from '@sveltejs/kit/hooks';
-import { handleLogging, defaultLogConfig } from 'vital-kit/hooks';
+import { defaultLogConfig, vitalHooks } from 'vital-kit/hooks';
 import { pino } from 'pino';
 import type { Handle } from '@sveltejs/kit';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
@@ -21,8 +21,8 @@ export const sessionHandle: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-const logging = handleLogging(
-	pino({
+const vital = vitalHooks({
+	logging: pino({
 		...defaultLogConfig,
 		transport:
 			process.env.NODE_ENV === 'development'
@@ -31,6 +31,6 @@ const logging = handleLogging(
 					}
 				: undefined
 	})
-);
+});
 
-export const handle = sequence(logging, betterAuth, sessionHandle);
+export const handle = sequence(vital, betterAuth, sessionHandle);

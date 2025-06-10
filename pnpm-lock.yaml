@@ -27,8 +27,8 @@ importers:
         specifier: ^3.4.5
         version: 3.4.7
       vital-kit:
-        specifier: ^0.0.2
-        version: 0.0.2(pino@9.7.0)(svelte@5.33.18)
+        specifier: ^0.0.3
+        version: 0.0.3(pino@9.7.0)(svelte@5.33.18)
       zod:
         specifier: ^3.25.56
         version: 3.25.56
@@ -2539,8 +2539,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  vital-kit@0.0.2:
-    resolution: {integrity: sha512-Je6nA3jmbnMRVVrSHSut8IxWl69sp8zpjpW+9fgLMJG0xU4Va/3mXhATgercFiBiACva9SneWscHBqkzK+PjTQ==}
+  vital-kit@0.0.3:
+    resolution: {integrity: sha512-MqULbWwIIU6h3Hxgr+LVv+oO658/JKvvm/OLvMjS4dcIPx2w9anFqignMJxaiewBZi3sUTU3KdADLHu1+fS9+Q==}
     peerDependencies:
       pino: ^9.7.0
       svelte: ^5.0.0
@@ -4775,7 +4775,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vital-kit@0.0.2(pino@9.7.0)(svelte@5.33.18):
+  vital-kit@0.0.3(pino@9.7.0)(svelte@5.33.18):
     dependencies:
       pino: 9.7.0
       svelte: 5.33.18

@@ -8,6 +8,7 @@ declare global {
 		interface Locals {
 			session: typeof auth.$Infer.Session | null;
 			logger: import('pino').Logger;
+			reqId: string;
 		}
 		// interface PageData {}
 		// interface PageState {}

@@ -1,3 +1,4 @@
+import { validGenderSelector } from '../../config';
 import {
 	pgTable,
 	text,
@@ -11,7 +12,7 @@ import {
 	index
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
-import type { z } from 'zod';
+import { z } from 'zod/v4';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -103,7 +104,9 @@ export const frames = pgTable(
 );
 
 export const insertFrameSchema = createInsertSchema(frames, {
-	link: (s) => s.url()
+	link: (s) => s.url(),
+	brandId: z.coerce.number().int().positive(),
+	gender: z.enum(validGenderSelector).optional()
 }).omit({
 	createdAt: true,
 	images: true,
