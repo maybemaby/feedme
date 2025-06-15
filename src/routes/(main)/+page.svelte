@@ -1,4 +1,4 @@
-<div class="min-h-[300px] py-14">
+<div class="flex min-h-[300px] flex-col justify-center py-14">
 	<h1 class="mb-2 text-2xl font-semibold md:text-3xl">
 		Find Alternatives to Expensive Luxury Frames
 	</h1>

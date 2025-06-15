@@ -45,7 +45,7 @@
 		</Alert.Root>
 	{/if}
 
-	<form use:enhance method="post" class="flex flex-col gap-5">
+	<form use:enhance enctype="multipart/form-data" method="post" class="flex flex-col gap-5">
 		<div class="flex items-end gap-3">
 			<FormGroup classname="flex-1" errors={form?.fields} field="name">
 				<Label for="name">Name</Label>
@@ -61,7 +61,7 @@
 			<Label for="brand">Brand</Label>
 
 			<Select.Root name="brandId" type="single" required bind:value={selectedBrand}>
-				<Select.Trigger class="w-[180px]">
+				<Select.Trigger class="w-[180px] overflow-clip">
 					{brandPlaceholder}
 				</Select.Trigger>
 				<Select.Content>
@@ -74,12 +74,30 @@
 
 		<ShapeSelect required errors={form?.fields} />
 
+		<FormGroup errors={form?.fields} field="price" hint="Price in USD">
+			<Label for="price">Price</Label>
+			<Input
+				id="price"
+				name="price"
+				placeholder="100"
+				type="number"
+				required
+				min={1}
+				max={100_000}
+			/>
+		</FormGroup>
+
 		<FormGroup hint="Optional" errors={form?.fields} field="color">
 			<Label for="color">Color</Label>
 			<Input id="color" name="color" placeholder="Black" type="text" />
 		</FormGroup>
 
 		<GenderSelect required errors={form?.fields} />
+
+		<FormGroup field={'image'} errors={form?.fields}>
+			<Label for="image">Image</Label>
+			<Input id="image" name="image" type="file" accept="image/*" />
+		</FormGroup>
 
 		{#if alternateFor}
 			<input type="hidden" name="alternateFor" value={alternateFor} />

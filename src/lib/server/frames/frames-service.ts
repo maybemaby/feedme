@@ -17,7 +17,7 @@ export async function searchBrands({ name }: { name: string }) {
 }
 
 export async function createFrame(
-	input: InsertFrameInput & { userId: string },
+	input: InsertFrameInput & { userId: string; images?: string[] },
 	driver?: DBorTransaction
 ) {
 	const d = driver ?? db;
@@ -26,7 +26,6 @@ export async function createFrame(
 		.insert(frames)
 		.values({
 			...input,
-			images: ['/frames/Brower_Rx_front.webp'],
 			submittedById: input.userId
 		})
 		.returning({

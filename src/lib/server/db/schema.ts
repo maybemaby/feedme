@@ -106,7 +106,11 @@ export const frames = pgTable(
 export const insertFrameSchema = createInsertSchema(frames, {
 	link: (s) => s.url(),
 	brandId: z.coerce.number().int().positive(),
-	gender: z.enum(validGenderSelector).optional()
+	gender: z.enum(validGenderSelector).optional(),
+	price: (n) =>
+		n
+			.min(1, 'Price must be between 1 and 100,000')
+			.max(100_000, 'Price must be between 1 and 100,000')
 }).omit({
 	createdAt: true,
 	images: true,

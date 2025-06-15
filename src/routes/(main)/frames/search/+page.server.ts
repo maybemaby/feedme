@@ -16,7 +16,14 @@ export const load: PageServerLoad = async (event) => {
 		size: 20
 	});
 
+	let prevPage = null;
+
+	if (page > 1) {
+		prevPage = page - 1;
+	}
+
 	return {
-		frames
+		frames,
+		prevPage
 	};
 };
