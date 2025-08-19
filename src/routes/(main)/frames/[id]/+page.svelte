@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { PUBLIC_S3_URL } from '$env/static/public';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { Separator } from '$lib/components/ui/separator';
 	import ArrowUpRight from '@lucide/svelte/icons/arrow-up-right';
 	let { data } = $props();
 
@@ -11,11 +13,7 @@
 
 <section id="original-frame" class="mt-6 mb-12 grid gap-4 sm:grid-cols-2">
 	<div class="bg-background flex min-h-[300px] items-center justify-center">
-		<img
-			src={'https://pub-d8cfb5171fe14b0897199ea6f33587b7.r2.dev/' + data.frame.images[0]}
-			alt="Glasses Preview"
-			class="object-cover"
-		/>
+		<img src={PUBLIC_S3_URL + data.frame.images[0]} alt="Glasses Preview" class="object-cover" />
 	</div>
 	<div>
 		<h1 class="text-2xl font-semibold">{data.frame.name}</h1>
@@ -23,7 +21,7 @@
 		<p>{description}</p>
 
 		<div class="mt-10">
-			<p class="text-xl">$400</p>
+			<p class="text-xl">${data.frame.price}</p>
 			<a
 				href={data.frame.link}
 				target="_blank"
@@ -37,6 +35,8 @@
 	</div>
 </section>
 
+<Separator class="mb-4" />
+
 <section id="alternatives">
 	<div class="mb-4 flex items-center gap-6">
 		<h2 class="text-2xl">Suggested Alternatives</h2>
@@ -48,20 +48,22 @@
 		{#if alternatives.length === 0}
 			<p>No alternatives yet.</p>
 		{:else}
-			<div class="grid gap-4 sm:grid-cols-2">
+			<div class="grid gap-y-8 sm:grid-cols-2">
 				{#each alternatives as alt (alt.id)}
 					<div class="bg-background relative flex min-h-[230px] items-center justify-center">
 						<img
-							src={'https://pub-d8cfb5171fe14b0897199ea6f33587b7.r2.dev/' + alt.images[0]}
+							src={PUBLIC_S3_URL + alt.images[0]}
 							alt={alt.name}
 							class="object-contain"
+							height={260}
+							width={600}
 						/>
 					</div>
 					<div>
 						<div class="mb-3 flex flex-col gap-1.5">
 							<p class="text-xl">{alt.name}</p>
 							<p>{alt.brandName}</p>
-							<p>$100</p>
+							<p>${alt.price}</p>
 						</div>
 
 						<Button href={alt.link} target="_blank" rel="noopener noreferrer" variant="link">

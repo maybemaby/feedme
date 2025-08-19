@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { PUBLIC_S3_URL } from '$env/static/public';
 	import GenderSelect from '$lib/components/gender-select.svelte';
 	import ShapeSelect from '$lib/components/shape-select.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -57,7 +58,7 @@
 					<div class="bg-card h-30 w-full">
 						{#if frame.images && frame.images.length > 0}
 							<img
-								src={'https://pub-d8cfb5171fe14b0897199ea6f33587b7.r2.dev/' + frame.images[0]}
+								src={PUBLIC_S3_URL + frame.images[0]}
 								alt={frame.name}
 								class="h-full w-full object-contain md:object-cover"
 							/>

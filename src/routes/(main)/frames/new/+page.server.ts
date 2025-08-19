@@ -14,6 +14,7 @@ import { z } from 'zod/v4';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client } from '$lib/server/s3';
 import { randomUUID } from 'crypto';
+import { BUCKET_NAME } from '$env/static/private';
 
 const newFrameSchema = insertFrameSchema.extend({
 	alternateFor: z.coerce.number().int().optional(),
@@ -40,7 +41,7 @@ async function uploadImage(file: File): Promise<string> {
 	const buffer = Buffer.from(await file.arrayBuffer());
 
 	const command = new PutObjectCommand({
-		Bucket: 'alternativeframes',
+		Bucket: BUCKET_NAME,
 		Key: key,
 		Body: buffer,
 		ContentType: file.type

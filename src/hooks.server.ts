@@ -1,7 +1,7 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import { defaultLogConfig, vitalHooks } from 'vital-kit/hooks';
 import { pino } from 'pino';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';
 
@@ -32,5 +32,9 @@ const vital = vitalHooks({
 				: undefined
 	})
 });
+
+export const handleError: HandleServerError = async ({ error, event, status, message }) => {
+	event.locals.logger.error({ error, message, status }, 'Unhandled error in SvelteKit');
+};
 
 export const handle = sequence(vital, betterAuth, sessionHandle);

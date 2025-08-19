@@ -1,6 +1,7 @@
-import { ilike, or, eq, and, getTableColumns } from 'drizzle-orm';
+import { ilike, or, eq, and, getTableColumns, isNotNull } from 'drizzle-orm';
 import { db, withPagination, type DBorTransaction, type PaginationOptions } from '../db';
 import { alternative, brands, frameRequests, frames, type InsertFrameInput } from '../db/schema';
+import type { RequestEvent } from '@sveltejs/kit';
 
 export async function createBrand(name: string) {
 	return db.insert(brands).values({
@@ -44,6 +45,24 @@ export async function createRequest(frameId: number, userId: string, driver?: DB
 	});
 }
 
+export function getFrameSearchParams(event: RequestEvent) {
+	const brand = event.url.searchParams.get('brand');
+	const shape = event.url.searchParams.get('shape');
+	const color = event.url.searchParams.get('color');
+	const name = event.url.searchParams.get('q') || '';
+	const page = Number(event.url.searchParams.get('page')) || 1;
+
+	return {
+		name,
+		brand: brand || undefined,
+		shape: shape || undefined,
+		color: color || undefined,
+		page,
+		size: 20
+	};
+}
+
+/** Search and filter frames that have requests and are not alternates */
 export async function searchFrames({
 	name,
 	brand,
@@ -53,6 +72,39 @@ export async function searchFrames({
 	name: string;
 	brand?: string;
 	shape?: string;
+	includeAlternates?: boolean;
+} & PaginationOptions) {
+	const qb = db
+		.select({
+			...getTableColumns(frames),
+			brandName: brands.name
+		})
+		.from(frames)
+		.innerJoin(brands, eq(frames.brandId, brands.id))
+		.leftJoin(frameRequests, eq(frames.id, frameRequests.frameId))
+		.where(
+			and(
+				or(ilike(frames.name, `%${name}%`), ilike(brands.name, `%${name}%`)),
+				brand ? eq(brands.name, brand) : undefined,
+				shape ? eq(frames.shape, shape) : undefined,
+				isNotNull(frameRequests.frameId)
+			)
+		)
+		.$dynamic();
+
+	return withPagination(qb, pagination);
+}
+
+export async function searchFramesAll({
+	name,
+	brand,
+	shape,
+	...pagination
+}: {
+	name: string;
+	brand?: string;
+	shape?: string;
+	includeAlternates?: boolean;
 } & PaginationOptions) {
 	const qb = db
 		.select({

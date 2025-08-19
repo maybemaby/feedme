@@ -1,16 +1,26 @@
 <script lang="ts">
 	import { cn } from '../utils';
 	import SearchIcon from '@lucide/svelte/icons/search';
+	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	let {
+		formWrap = true,
 		action,
 		placeholder,
 		name,
-		classname
-	}: { action?: string; placeholder?: string; name?: string; classname?: string } = $props();
+		classname,
+		value = $bindable(),
+		...rest
+	}: {
+		formWrap?: boolean;
+		action?: string;
+		placeholder?: string;
+		name?: string;
+		classname?: string;
+	} & HTMLInputAttributes = $props();
 </script>
 
-<form {action}>
+{#snippet input()}
 	<div
 		class={cn(
 			'flex items-center gap-2',
@@ -21,6 +31,14 @@
 		)}
 	>
 		<SearchIcon class="text-muted-foreground size-4" />
-		<input type="search" class="w-full border-none outline-none" {placeholder} {name} />
+		<input type="search" class="w-full border-none outline-none" {placeholder} {name} {...rest} />
 	</div>
-</form>
+{/snippet}
+
+{#if formWrap}
+	<form {action}>
+		{@render input()}
+	</form>
+{:else}
+	{@render input()}
+{/if}

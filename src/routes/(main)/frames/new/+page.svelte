@@ -96,7 +96,7 @@
 
 		<FormGroup field={'image'} errors={form?.fields}>
 			<Label for="image">Image</Label>
-			<Input id="image" name="image" type="file" accept="image/*" />
+			<Input id="image" name="image" type="file" accept="image/*,.jpeg,.png,.webp,.avif" />
 		</FormGroup>
 
 		{#if alternateFor}
