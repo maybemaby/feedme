@@ -1,6 +1,11 @@
+<script lang="ts">
+	const { data } = $props();
+</script>
+
 <div class="flex min-h-[300px] flex-col justify-center py-14">
-	<h1 class="mb-2 text-2xl font-semibold md:text-3xl">
-		Find Alternatives to Expensive Luxury Frames
-	</h1>
-	<p class="text-lg">Community-driven effort to save your wallet from overpriced frames.</p>
+	<ul>
+		{#each data.feeds as feed}
+			<li>{feed.name}</li>
+		{/each}
+	</ul>
 </div>

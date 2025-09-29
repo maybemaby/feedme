@@ -6,10 +6,27 @@
 	import { cn } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { authClient } from '../auth/client';
+	import { goto } from '$app/navigation';
 
 	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
 
 	const id = $props.id();
+
+	const formState = $state({
+		email: '',
+		password: ''
+	});
+
+	const handleSubmit = async () => {
+		const res = await authClient.signIn.email({
+			email: formState.email,
+			password: formState.password
+		});
+
+		if (!res.error) {
+			await goto('/');
+		}
+	};
 </script>
 
 <div class={cn('flex flex-col gap-6', className)} {...restProps}>
@@ -19,7 +36,7 @@
 			<Card.Description>Login with your Apple or Google account</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form>
+			<form onsubmit={handleSubmit}>
 				<div class="grid gap-6">
 					<div class="flex flex-col gap-4">
 						<Button variant="outline" class="w-full">
@@ -56,7 +73,13 @@
 					<div class="grid gap-6">
 						<div class="grid gap-3">
 							<Label for="email-{id}">Email</Label>
-							<Input id="email-{id}" type="email" placeholder="m@example.com" required />
+							<Input
+								id="email-{id}"
+								type="email"
+								placeholder="m@example.com"
+								required
+								bind:value={formState.email}
+							/>
 						</div>
 						<div class="grid gap-3">
 							<div class="flex items-center">
@@ -65,22 +88,16 @@
 									Forgot your password?
 								</a>
 							</div>
-							<Input id="password-{id}" type="password" required />
+							<Input id="password-{id}" type="password" required bind:value={formState.password} />
 						</div>
 						<Button type="submit" class="w-full">Login</Button>
 					</div>
 					<div class="text-center text-sm">
 						Don&apos;t have an account?
-						<a href="##" class="underline underline-offset-4"> Sign up </a>
+						<a href="/auth/signup" class="underline underline-offset-4"> Sign up </a>
 					</div>
 				</div>
 			</form>
 		</Card.Content>
 	</Card.Root>
-	<div
-		class="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4"
-	>
-		By clicking continue, you agree to our <a href="##">Terms of Service</a>
-		and <a href="##">Privacy Policy</a>.
-	</div>
 </div>

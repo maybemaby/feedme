@@ -13,5 +13,9 @@ export const auth = betterAuth({
 			clientId: env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID!,
 			clientSecret: env.GOOGLE_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET!
 		}
+	},
+	emailAndPassword: {
+		enabled: true,
+		requireEmailVerification: false
 	}
 });
