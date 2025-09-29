@@ -5,7 +5,7 @@ import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';
 
-process.title = 'alternativeframes';
+process.title = 'feedme';
 
 export const betterAuth: Handle = async ({ event, resolve }) => {
 	return svelteKitHandler({ event, resolve, auth });

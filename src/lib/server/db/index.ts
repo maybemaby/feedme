@@ -1,16 +1,16 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import type { PgSelect } from 'drizzle-orm/pg-core';
-import postgres from 'postgres';
-import * as schema from './schema';
+import { drizzle } from 'drizzle-orm/libsql';
+import type { SQLiteSelect } from 'drizzle-orm/sqlite-core';
+import * as schema from './sqlite-schema';
 import { env } from '$env/dynamic/private';
 
 if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
-const client = postgres(env.DATABASE_URL);
-
-export const db = drizzle(client, {
+export const db = drizzle({
 	schema,
-	logger: process.env.NODE_ENV === 'development' ? true : false
+	logger: process.env.NODE_ENV === 'development' ? true : false,
+	connection: {
+		url: env.DATABASE_URL
+	}
 });
 
 export type DBorTransaction = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -20,7 +20,7 @@ export type PaginationOptions = {
 	size?: number;
 };
 
-export function withPagination<T extends PgSelect>(
+export function withPagination<T extends SQLiteSelect>(
 	qb: T,
 	{ page = 1, size = 10 }: PaginationOptions
 ) {
