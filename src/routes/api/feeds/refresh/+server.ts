@@ -7,7 +7,6 @@ import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
 import type { Ok } from 'neverthrow';
 import type { OKResult } from '$lib/utils';
 import { upsertFeedItems } from '$lib/server/feeds-service';
-import type { title } from 'process';
 
 export const POST: RequestHandler = async (event) => {
 	const userId = event.locals.session?.user.id;

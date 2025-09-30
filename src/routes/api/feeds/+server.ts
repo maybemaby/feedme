@@ -3,9 +3,10 @@ import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
 import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
 import { db } from '$lib/server/db';
-import { feeds } from '$lib/server/db/sqlite-schema';
+import { feeds, type InsertFeedItem } from '$lib/server/db/sqlite-schema';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '$lib/utils';
+import { upsertFeedItems } from '$lib/server/feeds-service';
 
 const addFeedSchema = z.object({
 	url: z.url()
@@ -58,6 +59,17 @@ export const POST: RequestHandler = async (event) => {
 			url: feeds.url,
 			folderPath: feeds.folderPath
 		});
+
+	const upsertData: InsertFeedItem[] = parseRes.value.map((item) => ({
+		url: item.url,
+		createdAt: new Date(),
+		publishedAt: item.publishedAt || new Date(),
+		feedId: insertedFeed.id,
+		title: item.title,
+		content: item.description ?? ''
+	}));
+
+	await upsertFeedItems(upsertData);
 
 	return json({ feed: insertedFeed });
 };
