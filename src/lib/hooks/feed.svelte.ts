@@ -3,12 +3,13 @@ import type { PostFeedResponse } from '../../routes/api/feeds/+server';
 export function addFeedResource(url: Getter<string>) {
 	const feedResource = resource(
 		() => null,
-		async () => {
+		async (_id, _prevId, { signal }) => {
 			const res = await fetch('/api/feeds', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
+				signal,
 				body: JSON.stringify({ url: url() })
 			});
 
@@ -27,4 +28,25 @@ export function addFeedResource(url: Getter<string>) {
 	);
 
 	return feedResource;
+}
+
+export function refreshFeedResource() {
+	const refreshResource = resource(
+		() => null,
+		async (_id, _prevId, { signal }) => {
+			const res = await fetch('/api/feeds/refresh', { method: 'POST', signal });
+
+			if (!res.ok) {
+				const errorData = await res.json();
+				throw new Error(errorData.message || 'Failed to refresh feeds');
+			}
+
+			return res.json();
+		},
+		{
+			lazy: true
+		}
+	);
+
+	return refreshResource;
 }

@@ -54,7 +54,7 @@ function transformRss(feed: RssFeed<Date>) {
 			// @ts-ignore
 			const publishField = item.pubDate || item.date_published;
 			// @ts-ignore
-			const urlField = item.url || item.link;
+			const urlField = item.link;
 
 			return {
 				title: item.title || 'No title',

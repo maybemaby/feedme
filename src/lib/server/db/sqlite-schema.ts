@@ -60,9 +60,9 @@ export const feeds = sqliteTable(
 	'feeds',
 	{
 		id: text('id').primaryKey(),
-		url: text('url'),
-		name: text('name'),
-		slug: text('slug'),
+		url: text('url').notNull(),
+		name: text('name').notNull(),
+		slug: text('slug').notNull(),
 		createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
 		updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
 		userId: text('user_id')
@@ -89,6 +89,8 @@ export const feedItems = sqliteTable('feed_items', {
 	publishedAt: integer('published_at', { mode: 'timestamp' }).notNull(),
 	createdAt: integer('createdAt', { mode: 'timestamp' }).notNull()
 });
+
+export type InsertFeedItem = typeof feedItems.$inferInsert;
 
 export const tags = sqliteTable('tags', {
 	id: int('id').primaryKey(),

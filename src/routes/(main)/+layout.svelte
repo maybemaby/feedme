@@ -17,7 +17,7 @@
 <div class="flex h-screen">
 	<Sidebar />
 	<div class="w-full grow">
-		<header class="mx-auto flex w-full items-center justify-between gap-4 p-3">
+		<header class="mx-auto flex w-full items-center justify-between gap-4 border-b p-3">
 			<div>Placehold</div>
 			<div class="hidden items-center gap-3 md:flex">
 				<Popover.Root>
