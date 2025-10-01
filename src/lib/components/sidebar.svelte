@@ -34,15 +34,17 @@
 	];
 </script>
 
-<aside class="bg-card hidden h-full w-[300px] border-r lg:block">
-	<div class="p-4">
-		<a href="/" class="mb-4 flex items-center gap-2"> <Inbox /> All Feeds</a>
-		<Button variant="secondary" href="/feeds/manage" class="w-full">Manage Feeds</Button>
+<div class="p-4">
+	<a href="/" class="mb-4 flex items-center gap-2"> <Inbox /> All Feeds</a>
+	<Button
+		variant="secondary"
+		href="/feeds/manage"
+		class="border-foreground w-full rounded-none border shadow-none">Manage Feeds</Button
+	>
 
-		<div class="my-8">
-			{#each nodes as node}
-				<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
-			{/each}
-		</div>
+	<div class="my-8">
+		{#each nodes as node (node.id)}
+			<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
+		{/each}
 	</div>
-</aside>
+</div>

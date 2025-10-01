@@ -1,7 +1,6 @@
 <script lang="ts">
 	import SignupForm from '$lib/components/signup-form.svelte';
-	import Glasses from '@lucide/svelte/icons/glasses';
-	import { authClient } from '$lib/auth/client';
+	import RSS from '@lucide/svelte/icons/rss';
 </script>
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -10,9 +9,9 @@
 			<div
 				class="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md"
 			>
-				<Glasses class="size-4" />
+				<RSS class="size-4" />
 			</div>
-			Alternative Frames
+			FeedMe
 		</a>
 		<SignupForm />
 	</div>

@@ -11,7 +11,6 @@
 
 	let feedResource = addFeedResource(() => url);
 
-	$inspect(feedResource);
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();

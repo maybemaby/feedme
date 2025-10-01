@@ -1,6 +1,6 @@
 <script lang="ts">
 	import LoginForm from '$lib/components/login-form.svelte';
-	import Glasses from '@lucide/svelte/icons/glasses';
+	import { Rss } from '@lucide/svelte';
 </script>
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
@@ -9,9 +9,9 @@
 			<div
 				class="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md"
 			>
-				<Glasses class="size-4" />
+				<Rss class="size-4" />
 			</div>
-			Alternative Frames
+			FeedMe
 		</a>
 		<LoginForm />
 	</div>

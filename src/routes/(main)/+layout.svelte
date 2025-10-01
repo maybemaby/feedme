@@ -3,8 +3,10 @@
 	import { authClient } from '$lib/auth/client.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import AddFeed from '$lib/components/add-feed.svelte';
 	import Sidebar from '$lib/components/sidebar.svelte';
+	import { PanelLeft } from '@lucide/svelte';
 
 	let { data, children } = $props();
 
@@ -15,10 +17,21 @@
 </script>
 
 <div class="flex h-screen">
-	<Sidebar />
+	<aside class="bg-card hidden h-full w-[300px] border-r lg:block">
+		<Sidebar />
+	</aside>
 	<div class="flex h-screen w-full grow flex-col">
 		<header class="mx-auto flex w-full items-center justify-between gap-4 border-b p-3">
-			<div>Placehold</div>
+			<div>
+				<Sheet.Root>
+					<Sheet.Trigger class="lg:hidden">
+						<PanelLeft />
+					</Sheet.Trigger>
+					<Sheet.Content class="data-[state=open]:duration-300" side="left">
+						<Sidebar />
+					</Sheet.Content>
+				</Sheet.Root>
+			</div>
 			<div class="flex items-center gap-3">
 				<Popover.Root>
 					<Popover.Trigger class="border-foreground h-8 w-8 border">+</Popover.Trigger>

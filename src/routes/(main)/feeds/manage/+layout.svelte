@@ -2,8 +2,6 @@
 	import type { LayoutProps, PageProps } from './$types';
 
 	let { children, params }: LayoutProps = $props();
-
-	$inspect(params);
 </script>
 
 <div class="mx-auto max-w-screen-xl">
