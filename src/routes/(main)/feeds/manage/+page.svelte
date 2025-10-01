@@ -6,9 +6,7 @@
 	let { data }: PageProps = $props();
 </script>
 
-<h1 class="my-4 text-2xl">Manage Feeds</h1>
-
-<Table.Root>
+<Table.Root class="max-w-screen-xl">
 	<Table.Header class="border">
 		<Table.Row>
 			<Table.Head class="text-lg">Feed</Table.Head>
@@ -20,7 +18,7 @@
 			<Table.Row>
 				<Table.Cell class="border text-lg">{feed.name}</Table.Cell>
 				<Table.Cell class="text-center">
-					<Button class="rounded-none active:scale-95" href={`/feeds/manage/${feed.slug}`}
+					<Button class="h-full w-full rounded-none" href={`/feeds/manage/${feed.slug}`}
 						>Edit</Button
 					>
 				</Table.Cell>
