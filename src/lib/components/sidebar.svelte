@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Inbox } from '@lucide/svelte';
+	import { Button } from './ui/button/index';
 	import FolderTree, { type FolderTreeNode } from './folder-tree.svelte';
 
 	const onTreeItemClick = (name: string) => {
@@ -35,7 +36,8 @@
 
 <aside class="bg-card hidden h-full w-[300px] border-r lg:block">
 	<div class="p-4">
-		<a href="/" class="flex items-center gap-2"> <Inbox /> All Feeds</a>
+		<a href="/" class="mb-4 flex items-center gap-2"> <Inbox /> All Feeds</a>
+		<Button variant="secondary" href="/feeds/manage" class="w-full">Manage Feeds</Button>
 
 		<div class="my-8">
 			{#each nodes as node}
