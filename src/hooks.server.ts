@@ -4,11 +4,12 @@ import { pino } from 'pino';
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';
+import { building } from '$app/environment';
 
 process.title = 'feedme';
 
 export const betterAuth: Handle = async ({ event, resolve }) => {
-	return svelteKitHandler({ event, resolve, auth });
+	return svelteKitHandler({ event, resolve, auth, building });
 };
 
 export const sessionHandle: Handle = async ({ event, resolve }) => {

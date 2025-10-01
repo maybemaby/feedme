@@ -16,13 +16,13 @@
 
 <div class="flex h-screen">
 	<Sidebar />
-	<div class="w-full grow">
+	<div class="flex h-screen w-full grow flex-col">
 		<header class="mx-auto flex w-full items-center justify-between gap-4 border-b p-3">
 			<div>Placehold</div>
-			<div class="hidden items-center gap-3 md:flex">
+			<div class="flex items-center gap-3">
 				<Popover.Root>
 					<Popover.Trigger class="border-foreground h-8 w-8 border">+</Popover.Trigger>
-					<Popover.Content>
+					<Popover.Content sideOffset={12} align={'end'}>
 						<div>
 							<AddFeed />
 						</div>
@@ -30,14 +30,19 @@
 				</Popover.Root>
 				<nav class="flex items-center gap-3">
 					{#if data.loggedIn}
-						<Button onclick={handleLogout} variant="secondary" size="sm">Logout</Button>
+						<Button
+							class="border-foreground rounded-none border"
+							onclick={handleLogout}
+							variant="secondary"
+							size="sm">Logout</Button
+						>
 					{:else}
-						<Button href="/auth/login">Login</Button>
+						<Button class="border-foreground rounded-none border" href="/auth/login">Login</Button>
 					{/if}
 				</nav>
 			</div>
 		</header>
-		<main class="mx-auto w-full grow p-3">
+		<main class="mx-auto w-full grow overflow-y-scroll p-3">
 			{@render children?.()}
 		</main>
 	</div>
