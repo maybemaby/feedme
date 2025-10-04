@@ -1,8 +1,14 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
+	import * as Pagination from '$lib/components/ui/pagination/index.js';
 	import { refreshFeedResource } from '$lib/hooks/feed.svelte.js';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
+
+	const navigatePage = (page: number) => {
+		goto(`/?p=${page}`);
+	};
 
 	const refresh = refreshFeedResource();
 
@@ -19,8 +25,9 @@
 	});
 </script>
 
-<div class="flex min-h-[300px] flex-col">
+<div class="flex flex-col">
 	<Button class="rounded-none" onclick={() => refresh.refetch()}>Refresh Feeds</Button>
+
 	<div class="py-4">
 		{#each Object.entries(groupedItems) as [date, items] (date)}
 			<div class="mb-8 border-b">
@@ -41,4 +48,29 @@
 			</div>
 		{/each}
 	</div>
+	<Pagination.Root count={data.feedCount} perPage={20} page={data.page} onPageChange={navigatePage}>
+		{#snippet children({ pages, currentPage })}
+			<Pagination.Content>
+				<Pagination.Item>
+					<Pagination.PrevButton />
+				</Pagination.Item>
+				{#each pages as page (page.key)}
+					{#if page.type === 'ellipsis'}
+						<Pagination.Item>
+							<Pagination.Ellipsis />
+						</Pagination.Item>
+					{:else}
+						<Pagination.Item>
+							<Pagination.Link {page} isActive={currentPage === page.value}>
+								{page.value}
+							</Pagination.Link>
+						</Pagination.Item>
+					{/if}
+				{/each}
+				<Pagination.Item>
+					<Pagination.NextButton />
+				</Pagination.Item>
+			</Pagination.Content>
+		{/snippet}
+	</Pagination.Root>
 </div>

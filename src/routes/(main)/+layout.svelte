@@ -55,7 +55,7 @@
 				</nav>
 			</div>
 		</header>
-		<main class="mx-auto w-full grow overflow-y-scroll p-3">
+		<main class="relative mx-auto w-full grow overflow-y-scroll p-3">
 			{@render children?.()}
 		</main>
 	</div>
