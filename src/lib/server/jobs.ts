@@ -1,19 +1,13 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
-import { feeds } from '$lib/server/db/sqlite-schema';
-import { and, eq, inArray, isNull, lte, or } from 'drizzle-orm';
-import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
-import type { Ok } from 'neverthrow';
+import { and, eq, or, isNull, lte, inArray } from 'drizzle-orm';
+import { db } from './db';
+import { feeds } from './db/sqlite-schema';
+import { Ok, ok } from 'neverthrow';
+import { getFeedContent, parseFeedContent } from './feeds';
+import type { Logger } from 'pino';
 import type { OKResult } from '$lib/utils';
-import { upsertFeedItems } from '$lib/server/feeds-service';
+import { upsertFeedItems } from './feeds-service';
 
-export const POST: RequestHandler = async (event) => {
-	const userId = event.locals.session?.user.id;
-	if (!userId) {
-		return json({ message: 'Unauthorized' }, { status: 401 });
-	}
-
+export async function refreshFeedsForUser(userId: string, logger?: Logger) {
 	const feedsRes = await db
 		.select()
 		.from(feeds)
@@ -27,15 +21,8 @@ export const POST: RequestHandler = async (event) => {
 			)
 		);
 
-	event.locals.logger.debug(
-		{
-			count: feedsRes.length
-		},
-		'Updating feeds'
-	);
-
 	if (feedsRes.length === 0) {
-		return json({ message: 'No feeds to refresh' });
+		return ok({ message: 'No feeds to refresh' });
 	}
 
 	const contentRes = await Promise.all(
@@ -65,7 +52,7 @@ export const POST: RequestHandler = async (event) => {
 	}
 
 	if (failedContents.length > 0) {
-		event.locals.logger.error(
+		logger?.error(
 			{
 				failedContents
 			},
@@ -86,7 +73,7 @@ export const POST: RequestHandler = async (event) => {
 			parseResults.push({ feed: okRes.feed, items: parseRes.value });
 		} else {
 			failedParses.push({ feed: okRes.feed, error: parseRes.error.message });
-			event.locals.logger.error(
+			logger?.error(
 				{
 					feed: okRes.feed,
 					error: parseRes.error.message
@@ -128,21 +115,8 @@ export const POST: RequestHandler = async (event) => {
 		failedFeeds.push(failedContent.feed.name);
 	}
 
-	return json({ refreshed: parseResults, failedFeeds });
-};
-
-export const GET: RequestHandler = async () => {
-	const feedsList = await db
-		.select({
-			id: feeds.id
-		})
-		.from(feeds)
-		.where(
-			or(
-				lte(feeds.refreshedAt, new Date(Date.now() - 8 * 60 * 60 * 1000)), // 8 hours
-				isNull(feeds.refreshedAt)
-			)
-		);
-
-	return json({ feedIds: feedsList.map((f) => f.id) });
-};
+	return ok({
+		refreshed: parseResults,
+		failedFeeds
+	});
+}

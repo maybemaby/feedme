@@ -1,0 +1,6 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/mattn/go-sqlite3 v1.14.32 h1:JD12Ag3oLy1zQA+BNn74xRgaBbdhbNIDYvQUEuuErjs=
+github.com/mattn/go-sqlite3 v1.14.32/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/mikestefanello/backlite v0.6.0 h1:kpQKxR5NGHWvtAZuR0AsEZo95g967FY9fnU9y7YYvAY=
+github.com/mikestefanello/backlite v0.6.0/go.mod h1:gx6UKLUQY5OVXQkIm3AzNkyPn9OzoKHKuwM4JGrY4tQ=
