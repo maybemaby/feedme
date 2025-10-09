@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/db';
 import { feeds } from '$lib/server/db/sqlite-schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lte, or } from 'drizzle-orm';
 import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
 import type { Ok } from 'neverthrow';
 import type { OKResult } from '$lib/utils';
@@ -14,7 +14,29 @@ export const POST: RequestHandler = async (event) => {
 		return json({ message: 'Unauthorized' }, { status: 401 });
 	}
 
-	const feedsRes = await db.select().from(feeds).where(eq(feeds.userId, userId));
+	const feedsRes = await db
+		.select()
+		.from(feeds)
+		.where(
+			and(
+				eq(feeds.userId, userId),
+				or(
+					lte(feeds.refreshedAt, new Date(Date.now() - 60 * 60 * 1000)), // 1 hour
+					isNull(feeds.refreshedAt)
+				)
+			)
+		);
+
+	event.locals.logger.debug(
+		{
+			count: feedsRes.length
+		},
+		'Updating feeds'
+	);
+
+	if (feedsRes.length === 0) {
+		return json({ message: 'No feeds to refresh' });
+	}
 
 	const contentRes = await Promise.all(
 		feedsRes.map((feed) => {
@@ -86,6 +108,16 @@ export const POST: RequestHandler = async (event) => {
 	});
 
 	await upsertFeedItems(feedData);
+
+	await db
+		.update(feeds)
+		.set({ refreshedAt: new Date() })
+		.where(
+			inArray(
+				feeds.id,
+				feedData.map((f) => f.feedId)
+			)
+		);
 
 	const failedFeeds: string[] = [];
 

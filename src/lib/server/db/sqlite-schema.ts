@@ -65,6 +65,7 @@ export const feeds = sqliteTable(
 		slug: text('slug').notNull(),
 		createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
 		updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+		refreshedAt: integer('refreshedAt', { mode: 'timestamp' }),
 		userId: text('user_id')
 			.notNull()
 			.references(() => user.id, bothCascade),

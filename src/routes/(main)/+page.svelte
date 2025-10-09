@@ -10,6 +10,8 @@
 		goto(`/?p=${page}`);
 	};
 
+	$inspect(data);
+
 	const refresh = refreshFeedResource();
 
 	const groupedItems = $derived.by(() => {

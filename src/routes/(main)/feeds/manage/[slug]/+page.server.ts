@@ -47,7 +47,8 @@ export const actions: Actions = {
 			.update(feeds)
 			.set({
 				url: res.value.url,
-				folderPath: res.value.folderPath
+				folderPath: res.value.folderPath,
+				updatedAt: new Date()
 			})
 			.where(and(eq(feeds.userId, userId), eq(feeds.slug, params.slug)));
 
