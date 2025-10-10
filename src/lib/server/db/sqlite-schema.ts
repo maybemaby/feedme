@@ -92,6 +92,7 @@ export const feedItems = sqliteTable('feed_items', {
 });
 
 export type InsertFeedItem = typeof feedItems.$inferInsert;
+export type FeedItem = typeof feedItems.$inferSelect;
 
 export const tags = sqliteTable('tags', {
 	id: int('id').primaryKey(),
