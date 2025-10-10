@@ -29,9 +29,9 @@
 			<button onclick={() => (open = !open)} aria-label="Toggle Folder">
 				<span class="sr-only">Toggle Folder {node.label}</span>
 				{#if open}
-					<FolderOpen />
+					<FolderOpen size={16} />
 				{:else}
-					<FolderClosed />
+					<FolderClosed size={16} />
 				{/if}
 			</button>
 			<button

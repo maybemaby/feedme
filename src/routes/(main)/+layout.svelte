@@ -27,7 +27,7 @@
 					<Sheet.Trigger class="lg:hidden">
 						<PanelLeft />
 					</Sheet.Trigger>
-					<Sheet.Content class="data-[state=open]:duration-300" side="left">
+					<Sheet.Content class="pt-10 data-[state=open]:duration-300" side="left">
 						<Sidebar />
 					</Sheet.Content>
 				</Sheet.Root>

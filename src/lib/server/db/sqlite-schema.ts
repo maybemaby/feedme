@@ -1,4 +1,4 @@
-import { uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { uniqueIndex, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import { int, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 const bothCascade = { onDelete: 'cascade', onUpdate: 'cascade' } as const;
@@ -56,6 +56,23 @@ export const verification = sqliteTable('verification', {
 	updatedAt: integer('updatedAt', { mode: 'timestamp' })
 });
 
+export const folder = sqliteTable(
+	'folders',
+	{
+		id: int('id').primaryKey(),
+		name: text('name').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => user.id, bothCascade),
+		// Some dot separated path like "news.technology", "sports.football", separators indicating subfolders
+		folderPath: text('folder_path').notNull().default(''),
+		parentId: int('parent_id').references((): AnySQLiteColumn => folder.id, {
+			onDelete: 'restrict'
+		})
+	},
+	(table) => [uniqueIndex('user_folder_path_idx').on(table.userId, table.folderPath)]
+);
+
 export const feeds = sqliteTable(
 	'feeds',
 	{
@@ -70,7 +87,7 @@ export const feeds = sqliteTable(
 			.notNull()
 			.references(() => user.id, bothCascade),
 		// Some dot separated path like "news.technology", "sports.football", separators indicating subfolders
-		folderPath: text('folder_path').notNull().default('')
+		folderId: int('folder_id').references(() => folder.id, { onDelete: 'restrict' })
 	},
 	(table) => [
 		uniqueIndex('user_name_idx').on(table.userId, table.name),

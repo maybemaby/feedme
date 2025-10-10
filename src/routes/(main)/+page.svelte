@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Pagination from '$lib/components/ui/pagination/index.js';
 	import { refreshFeedResource } from '$lib/hooks/feed.svelte.js';
 	import { goto } from '$app/navigation';

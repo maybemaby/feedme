@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { Inbox } from '@lucide/svelte';
-	import { Button } from './ui/button/index';
+	import { Inbox, ChevronUp, Plus } from '@lucide/svelte';
+	import { Button, buttonVariants } from './ui/button/index';
 	import FolderTree, { type FolderTreeNode } from './folder-tree.svelte';
+	import AddFolder from './add-folder.svelte';
+	import * as Collapsible from './ui/collapsible/index';
+
+	let foldersOpen = $state(true);
+	let addingFolder = $state(false);
 
 	const onTreeItemClick = (name: string) => {
 		console.log('Clicked on item:', name);
@@ -35,7 +40,12 @@
 </script>
 
 <div class="p-4">
-	<a href="/" class="mb-4 flex items-center gap-2"> <Inbox /> All Feeds</a>
+	<a
+		href="/"
+		class="bg-primary text-primary-foreground mb-4 flex items-center justify-center gap-2 border p-2"
+	>
+		<Inbox size={20} /> All Feeds</a
+	>
 	<Button
 		variant="secondary"
 		href="/feeds/manage"
@@ -43,8 +53,29 @@
 	>
 
 	<div class="my-8">
-		{#each nodes as node (node.id)}
-			<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
-		{/each}
+		<Collapsible.Root bind:open={foldersOpen}>
+			<div class="flex items-center gap-2 pb-2">
+				Folders
+				<Collapsible.Trigger
+					class={[buttonVariants({ variant: 'ghost', size: 'icon' }), 'group ml-auto']}
+				>
+					<ChevronUp size={16} class="transition-transform group-data-[state=closed]:rotate-180" />
+				</Collapsible.Trigger>
+				<Button variant="ghost" size="icon" onclick={() => (addingFolder = true)}>
+					<Plus />
+				</Button>
+			</div>
+			{#if addingFolder}
+				<div class="mb-2">
+					<AddFolder onBlur={() => (addingFolder = false)} />
+				</div>
+			{/if}
+
+			<Collapsible.Content>
+				{#each nodes as node (node.id)}
+					<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
+				{/each}
+			</Collapsible.Content>
+		</Collapsible.Root>
 	</div>
 </div>
