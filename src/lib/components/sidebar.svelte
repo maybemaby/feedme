@@ -4,6 +4,7 @@
 	import FolderTree, { type FolderTreeNode } from './folder-tree.svelte';
 	import AddFolder from './add-folder.svelte';
 	import * as Collapsible from './ui/collapsible/index';
+	import { goto } from '$app/navigation';
 
 	let { folderNodes }: { folderNodes?: FolderTreeNode[] } = $props();
 	let foldersOpen = $state(true);
@@ -11,6 +12,10 @@
 
 	const onTreeItemClick = (name: string | number) => {
 		console.log('Clicked on item:', name);
+	};
+
+	const onItemClick = (name: string | number) => {
+		goto(`/feeds/view/${name}`);
 	};
 
 	const nodes: FolderTreeNode[] = [
@@ -75,7 +80,7 @@
 
 			<Collapsible.Content>
 				{#each folderNodes as node (node.id)}
-					<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
+					<FolderTree {node} onFolderClick={onTreeItemClick} {onItemClick} />
 				{/each}
 				<!-- {#each nodes as node (node.id)}
 					<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />

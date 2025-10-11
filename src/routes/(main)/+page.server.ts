@@ -1,8 +1,9 @@
 import { db } from '$lib/server/db';
-import { feedItems, feeds } from '$lib/server/db/sqlite-schema';
-import { count, desc, eq, getTableColumns } from 'drizzle-orm';
+import { feeds } from '$lib/server/db/sqlite-schema';
+import { eq } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
+import { countFeedItems, findFeedItems } from '$lib/server/feeds-service';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const userId = locals.session?.user.id;
@@ -16,26 +17,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	const feedRes = await db.select().from(feeds).where(eq(feeds.userId, userId));
 
-	const [feedCount] = await db
-		.select({
-			count: count(feedItems.id)
-		})
-		.from(feedItems)
-		.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
-		.where(eq(feeds.userId, userId));
+	const feedCount = await countFeedItems({ userId });
 
-	const feedItemRes = await db
-		.select({
-			...getTableColumns(feedItems),
-			feedSlug: feeds.slug,
-			feedName: feeds.name
-		})
-		.from(feedItems)
-		.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
-		.where(eq(feeds.userId, userId))
-		.orderBy(desc(feedItems.publishedAt))
-		.offset((page - 1) * 20)
-		.limit(page * 20);
+	const feedItemRes = await findFeedItems({
+		userId,
+		page
+	});
 
-	return { feeds: feedRes, feedItems: feedItemRes, page, feedCount: feedCount.count };
+	return { feeds: feedRes, feedItems: feedItemRes, page, feedCount };
 };
