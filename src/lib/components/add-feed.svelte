@@ -23,7 +23,7 @@
 	{#if feedResource.current}
 		<div>
 			<p class="mb-4 text-lg">New Feed Added:</p>
-			<a href={`/feeds/${feedResource.current.feed.slug}`}>
+			<a href={`/feeds/view/${feedResource.current.feed.slug}`}>
 				<p>{feedResource.current.feed.name}</p>
 			</a>
 

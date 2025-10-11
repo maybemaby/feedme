@@ -1,4 +1,4 @@
-import { getTableColumns, sql, eq, desc, and, count } from 'drizzle-orm';
+import { getTableColumns, sql, eq, desc, and, count, or } from 'drizzle-orm';
 import { db } from './db';
 import { feedItems, feeds, type InsertFeedItem } from './db/sqlite-schema';
 
@@ -21,6 +21,7 @@ interface FindFeedItemsParams {
 	feedId?: string;
 	userId?: string;
 	page?: number;
+	slug?: string;
 }
 
 export async function findFeedItems(params?: FindFeedItemsParams) {
@@ -41,7 +42,10 @@ export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
 		.where(
 			and(
 				params?.userId ? eq(feeds.userId, params.userId) : undefined,
-				params?.feedId ? eq(feedItems.feedId, params.feedId) : undefined
+				or(
+					params?.feedId ? eq(feedItems.feedId, params.feedId) : undefined,
+					params?.slug ? eq(feeds.slug, params.slug) : undefined
+				)
 			)
 		)
 		.orderBy(desc(feedItems.publishedAt))
@@ -65,7 +69,10 @@ export function countFeedItemsBuilder(params: Omit<FindFeedItemsParams, 'page'>)
 		.where(
 			and(
 				params.userId ? eq(feeds.userId, params.userId) : undefined,
-				params.feedId ? eq(feedItems.feedId, params.feedId) : undefined
+				or(
+					params.feedId ? eq(feedItems.feedId, params.feedId) : undefined,
+					params.slug ? eq(feeds.slug, params.slug) : undefined
+				)
 			)
 		);
 }

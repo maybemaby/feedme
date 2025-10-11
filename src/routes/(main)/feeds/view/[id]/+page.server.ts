@@ -12,9 +12,11 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const pageQuery = url.searchParams.get('p');
 	const page = pageQuery ? parseInt(pageQuery) : 1;
 
+	// Allow usage of either feed ID or slug in the URL
 	const feedItems = await findFeedItems({
 		userId,
 		feedId: params.id,
+		slug: params.id,
 		page
 	});
 
