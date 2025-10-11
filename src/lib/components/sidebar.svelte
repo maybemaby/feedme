@@ -61,7 +61,7 @@
 
 	<div class="my-8">
 		<Collapsible.Root bind:open={foldersOpen}>
-			<div class="flex items-center gap-2 pb-2">
+			<div class="flex items-center gap-2 pb-1">
 				Folders
 				<Collapsible.Trigger
 					class={[buttonVariants({ variant: 'ghost', size: 'icon' }), 'group ml-auto']}
@@ -78,7 +78,10 @@
 				</div>
 			{/if}
 
-			<Collapsible.Content>
+			<Collapsible.Content
+				hiddenUntilFound
+				class="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden"
+			>
 				{#each folderNodes as node (node.id)}
 					<FolderTree {node} onFolderClick={onTreeItemClick} {onItemClick} />
 				{/each}

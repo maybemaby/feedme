@@ -163,6 +163,9 @@
 	--shadow-lg: var(--shadow-lg);
 	--shadow-xl: var(--shadow-xl);
 	--shadow-2xl: var(--shadow-2xl);
+
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.1s ease-out;
 }
 
 @layer base {
@@ -184,5 +187,25 @@
 		height: 100%;
 		margin: 0;
 		@apply bg-background text-foreground;
+	}
+
+	@keyframes accordion-down {
+		from {
+			height: 0;
+		}
+
+		to {
+			height: var(--bits-accordion-content-height);
+		}
+	}
+
+	@keyframes accordion-up {
+		from {
+			height: var(--bits-accordion-content-height);
+		}
+
+		to {
+			height: 0;
+		}
 	}
 }
