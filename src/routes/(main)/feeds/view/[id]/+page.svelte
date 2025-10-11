@@ -45,7 +45,7 @@
 
 <div class="py-4">
 	{#each data.feedItems as item (item.id)}
-		<FeedLink {item} />
+		<FeedLink {item} showFeedName={false} showPublishDate />
 	{:else}
 		<p>No items found for this feed.</p>
 	{/each}

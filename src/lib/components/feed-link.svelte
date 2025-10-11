@@ -1,7 +1,15 @@
 <script lang="ts">
 	import type { FeedItem } from '$lib/server/db/sqlite-schema';
 
-	let { item }: { item: FeedItem } = $props();
+	let {
+		item,
+		showFeedName = true,
+		showPublishDate = false
+	}: {
+		item: FeedItem & { feedName: string };
+		showFeedName?: boolean;
+		showPublishDate?: boolean;
+	} = $props();
 </script>
 
 <article class="py-2">
@@ -11,6 +19,12 @@
 		</h2>
 	</a>
 	<div class="flex items-center gap-4 text-sm">
-		<p>{item.feedName}</p>
+		{#if showFeedName}
+			<p>{item.feedName}</p>
+		{/if}
+
+		{#if showPublishDate}
+			<p>{item.publishedAt.toLocaleDateString()}</p>
+		{/if}
 	</div>
 </article>
