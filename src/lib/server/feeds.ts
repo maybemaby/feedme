@@ -67,5 +67,3 @@ function transformRss(feed: RssFeed<Date>) {
 		})
 	);
 }
-
-

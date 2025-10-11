@@ -7,7 +7,6 @@
 	import AddFeed from '$lib/components/add-feed.svelte';
 	import Sidebar from '$lib/components/sidebar.svelte';
 	import { PanelLeft } from '@lucide/svelte';
-	import type { FolderTreeNode } from '$lib/components/folder-tree.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { data, children }: LayoutProps = $props();
@@ -37,7 +36,7 @@
 			<div class="flex items-center gap-3">
 				<Popover.Root>
 					<Popover.Trigger class="border-foreground h-8 w-8 border">+</Popover.Trigger>
-					<Popover.Content sideOffset={12} align={'end'}>
+					<Popover.Content sideOffset={12} align="end">
 						<div>
 							<AddFeed />
 						</div>

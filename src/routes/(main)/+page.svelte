@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as Pagination from '$lib/components/ui/pagination/index.js';
-	import { refreshFeedResource } from '$lib/hooks/feed.svelte.js';
 	import { goto } from '$app/navigation';
 	import FeedLink from '$lib/components/feed-link.svelte';
 
@@ -9,8 +8,6 @@
 	const navigatePage = (page: number) => {
 		goto(`/?p=${page}`);
 	};
-
-	const refresh = refreshFeedResource();
 
 	const groupedItems = $derived.by(() => {
 		const groups: { [key: string]: typeof data.feedItems } = {};

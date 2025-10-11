@@ -24,9 +24,13 @@ interface FindFeedItemsParams {
 }
 
 export async function findFeedItems(params?: FindFeedItemsParams) {
-	const page = params?.page || 1;
+	return await findFeedItemsBuilder(params);
+}
 
-	return await db
+// For use in batched calls
+export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
+	const page = params?.page || 1;
+	return db
 		.select({
 			...getTableColumns(feedItems),
 			feedSlug: feeds.slug,
@@ -46,7 +50,13 @@ export async function findFeedItems(params?: FindFeedItemsParams) {
 }
 
 export async function countFeedItems(params: Omit<FindFeedItemsParams, 'page'>) {
-	const [feedCount] = await db
+	const [feedCount] = await countFeedItemsBuilder(params);
+
+	return feedCount.count;
+}
+
+export function countFeedItemsBuilder(params: Omit<FindFeedItemsParams, 'page'>) {
+	return db
 		.select({
 			count: count(feedItems.id)
 		})
@@ -58,6 +68,4 @@ export async function countFeedItems(params: Omit<FindFeedItemsParams, 'page'>) 
 				params.feedId ? eq(feedItems.feedId, params.feedId) : undefined
 			)
 		);
-
-	return feedCount.count;
 }

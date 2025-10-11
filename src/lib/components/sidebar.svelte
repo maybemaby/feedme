@@ -18,32 +18,32 @@
 		goto(`/feeds/view/${name}`);
 	};
 
-	const nodes: FolderTreeNode[] = [
-		{
-			id: 'folder-1',
-			label: 'Folder 1',
-			type: 'folder',
-			children: [
-				{ id: 'feed-1', label: 'Feed 1', type: 'item' },
-				{ id: 'feed-2', label: 'Feed 2', type: 'item' }
-			]
-		},
-		{
-			id: 'folder-2',
-			label: 'Folder 2',
-			type: 'folder',
-			children: [
-				{ id: 'feed-3', label: 'Feed 3', type: 'item' },
-				{
-					id: 'folder-3',
-					label: 'Subfolder 1',
-					type: 'folder',
-					children: [{ id: 'feed-4', label: 'Feed 4', type: 'item' }]
-				}
-			]
-		},
-		{ id: 'feed-5', label: 'Feed 5', type: 'item' }
-	];
+	// const nodes: FolderTreeNode[] = [
+	// 	{
+	// 		id: 'folder-1',
+	// 		label: 'Folder 1',
+	// 		type: 'folder',
+	// 		children: [
+	// 			{ id: 'feed-1', label: 'Feed 1', type: 'item' },
+	// 			{ id: 'feed-2', label: 'Feed 2', type: 'item' }
+	// 		]
+	// 	},
+	// 	{
+	// 		id: 'folder-2',
+	// 		label: 'Folder 2',
+	// 		type: 'folder',
+	// 		children: [
+	// 			{ id: 'feed-3', label: 'Feed 3', type: 'item' },
+	// 			{
+	// 				id: 'folder-3',
+	// 				label: 'Subfolder 1',
+	// 				type: 'folder',
+	// 				children: [{ id: 'feed-4', label: 'Feed 4', type: 'item' }]
+	// 			}
+	// 		]
+	// 	},
+	// 	{ id: 'feed-5', label: 'Feed 5', type: 'item' }
+	// ];
 </script>
 
 <div class="p-4">

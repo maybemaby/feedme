@@ -1,3 +1,4 @@
 {
-	"biome.enabled": false
+	"biome.enabled": false,
+	"eslint.validate": ["javascript", "typescript", "svelte"]
 }

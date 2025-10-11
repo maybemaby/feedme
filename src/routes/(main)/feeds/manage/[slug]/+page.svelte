@@ -1,21 +1,17 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import EditFeed from '$lib/components/edit-feed.svelte';
-	import FolderSelect from '$lib/components/folder-select.svelte';
-	import FormGroup from '$lib/components/form-group.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { Input } from '$lib/components/ui/input';
-	import { Label } from '$lib/components/ui/label';
 	import type { PageProps } from './$types';
 
-	let { data, form }: PageProps = $props();
-
-	let url = $state(data.feed.url);
+	let { data }: PageProps = $props();
 </script>
 
 <div>
 	<a href="/feeds/manage" class="text-sm">← Back to Manage Feeds</a>
-	<h1 class="mt-4 mb-8 text-2xl">{data.feed.name}</h1>
+	<h1 class="mt-4 text-2xl">{data.feed.name}</h1>
+	<p class="mb-8 text-sm font-light">
+		Last Refreshed: {data.feed.refreshedAt?.toLocaleString()}
+	</p>
 
 	<h2 class="mb-4 text-lg">Update Feed Properties</h2>
 	<EditFeed feedSlug={data.feed.slug} initialData={data.feed} />

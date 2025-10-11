@@ -2,6 +2,7 @@
 	import * as Select from './ui/select';
 	import { getFoldersResource } from '$lib/hooks/folders.svelte';
 
+	// eslint-disable-next-line svelte/no-unused-props
 	let props: { name?: string; id?: string; initialValue?: string | null } = $props();
 
 	const foldersResource = getFoldersResource();

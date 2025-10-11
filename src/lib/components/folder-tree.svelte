@@ -42,7 +42,7 @@
 		<div class="ml-4">
 			{#if open}
 				{#if node.children}
-					{#each node.children as child}
+					{#each node.children as child (child.id)}
 						<FolderTree node={child} {onFolderClick} {onItemClick} />
 					{/each}
 				{/if}

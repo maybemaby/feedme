@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { feeds, folder } from '$lib/server/db/sqlite-schema';
-import { asc, eq, getTableColumns, or } from 'drizzle-orm';
+import { asc, eq, or } from 'drizzle-orm';
 import type { FolderTreeNode } from '$lib/components/folder-tree.svelte';
 import { inspect } from 'node:util';
 
@@ -38,7 +38,7 @@ export const load: LayoutServerLoad = async (event) => {
 		)
 		.orderBy(asc(folder.parentId));
 
-	console.log(inspect(folderList));
+	// console.log(inspect(folderList));
 
 	const folderNodes: Map<number | string, FolderTreeNode> = new Map();
 
@@ -101,7 +101,7 @@ export const load: LayoutServerLoad = async (event) => {
 		}
 	}
 
-	console.log(inspect(folderNodes, true, 10));
+	// console.log(inspect(folderNodes, true, 10));
 
 	const folderTree: FolderTreeNode[] = Array.from(folderNodes.values());
 

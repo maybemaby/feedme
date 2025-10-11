@@ -13,8 +13,6 @@
 		parentId: parentId ?? null
 	});
 
-	$inspect(submitData);
-
 	const addFolder = addFolderResource(() => submitData);
 
 	onMount(() => {
