@@ -1,6 +1,6 @@
 <script module lang="ts">
 	export type FolderTreeNode = {
-		id: string;
+		id: string | number;
 		label: string;
 		type: 'folder' | 'item';
 		children?: FolderTreeNode[];
@@ -17,8 +17,8 @@
 		onItemClick
 	}: {
 		node: FolderTreeNode;
-		onFolderClick?: (name: string) => void;
-		onItemClick?: (name: string) => void;
+		onFolderClick?: (name: string | number) => void;
+		onItemClick?: (name: string | number) => void;
 	} = $props();
 	let open = $state(false);
 </script>

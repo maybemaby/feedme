@@ -7,8 +7,10 @@
 	import AddFeed from '$lib/components/add-feed.svelte';
 	import Sidebar from '$lib/components/sidebar.svelte';
 	import { PanelLeft } from '@lucide/svelte';
+	import type { FolderTreeNode } from '$lib/components/folder-tree.svelte';
+	import type { LayoutProps } from './$types';
 
-	let { data, children } = $props();
+	let { data, children }: LayoutProps = $props();
 
 	async function handleLogout() {
 		await authClient.signOut();
@@ -18,7 +20,7 @@
 
 <div class="flex h-screen">
 	<aside class="bg-card hidden h-full w-[300px] border-r lg:block">
-		<Sidebar />
+		<Sidebar folderNodes={data.folderTree} />
 	</aside>
 	<div class="flex h-screen w-full grow flex-col">
 		<header class="mx-auto flex w-full items-center justify-between gap-4 border-b p-3">
@@ -28,7 +30,7 @@
 						<PanelLeft />
 					</Sheet.Trigger>
 					<Sheet.Content class="pt-10 data-[state=open]:duration-300" side="left">
-						<Sidebar />
+						<Sidebar folderNodes={data.folderTree} />
 					</Sheet.Content>
 				</Sheet.Root>
 			</div>

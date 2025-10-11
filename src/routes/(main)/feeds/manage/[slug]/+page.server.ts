@@ -1,10 +1,10 @@
-import z from 'zod';
 import { error, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { validateAction } from 'vital-kit/validation';
 import type { PageServerLoad, Actions } from './$types';
 import { db } from '$lib/server/db';
 import { feeds } from '$lib/server/db/sqlite-schema';
+import { editFeedSchema } from '$lib/hooks/feed.svelte';
 
 export const load: PageServerLoad = async (event) => {
 	const userId = event.locals.session?.user.id;
@@ -22,11 +22,6 @@ export const load: PageServerLoad = async (event) => {
 		feed
 	};
 };
-
-const editFeedSchema = z.object({
-	url: z.url().optional(),
-	folderPath: z.string().optional()
-});
 
 export const actions: Actions = {
 	async edit({ locals, request, params }) {
@@ -47,7 +42,7 @@ export const actions: Actions = {
 			.update(feeds)
 			.set({
 				url: res.value.url,
-				folderPath: res.value.folderPath,
+				folderId: res.value.folderId,
 				updatedAt: new Date()
 			})
 			.where(and(eq(feeds.userId, userId), eq(feeds.slug, params.slug)));

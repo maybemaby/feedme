@@ -6,11 +6,11 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { addFeedResource } from '$lib/hooks/feed.svelte';
 	import type { FormEventHandler } from 'svelte/elements';
+	import EditFeed from './edit-feed.svelte';
 
 	let url = $state('');
 
 	let feedResource = addFeedResource(() => url);
-
 
 	const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
 		event.preventDefault();
@@ -26,6 +26,16 @@
 			<a href={`/feeds/${feedResource.current.feed.slug}`}>
 				<p>{feedResource.current.feed.name}</p>
 			</a>
+
+			<div class="my-4">
+				<EditFeed
+					feedSlug={feedResource.current.feed.slug}
+					initialData={{
+						folderId: feedResource.current.feed.folderId,
+						url: feedResource.current.feed.url
+					}}
+				/>
+			</div>
 		</div>
 	{:else}
 		<p>Add Feed</p>

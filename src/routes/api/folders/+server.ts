@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		return new Response('Invalid folder name', { status: 400 });
 	}
 
-	let folderPath = '';
+	let folderPath = parseRes.data.name;
 
 	if (parseRes.data.parentId) {
 		const [parentFolder] = await db
@@ -55,4 +55,20 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		.returning();
 
 	return json(newFolder, { status: 201 });
+};
+
+export const GET: RequestHandler = async ({ locals }) => {
+	const userId = locals.session?.user.id;
+
+	if (!userId) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
+	const folders = await db
+		.select()
+		.from(folder)
+		.where(eq(folder.userId, userId))
+		.orderBy(folder.name);
+
+	return json({ folders });
 };

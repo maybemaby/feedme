@@ -7,6 +7,7 @@ import { feeds, type InsertFeedItem } from '$lib/server/db/sqlite-schema';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '$lib/utils';
 import { upsertFeedItems } from '$lib/server/feeds-service';
+import { eq } from 'drizzle-orm';
 
 const addFeedSchema = z.object({
 	url: z.url()
@@ -46,7 +47,6 @@ export const POST: RequestHandler = async (event) => {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			url: res.data.url,
-			folderPath: '',
 			userId: event.locals.session.user.id,
 			id: randomUUID(),
 			name: sourceName,
@@ -57,7 +57,7 @@ export const POST: RequestHandler = async (event) => {
 			name: feeds.name,
 			slug: feeds.slug,
 			url: feeds.url,
-			folderPath: feeds.folderPath
+			folderId: feeds.folderId
 		});
 
 	const upsertData: InsertFeedItem[] = parseRes.value.map((item) => ({
@@ -80,6 +80,18 @@ export type PostFeedResponse = {
 		name: string;
 		slug: string;
 		url: string;
-		folderPath: string;
+		folderId: number | null;
 	};
+};
+
+export const GET: RequestHandler = async ({ locals }) => {
+	const userId = locals.session?.user.id;
+
+	if (!userId) {
+		return json({ message: 'Unauthorized' }, { status: 401 });
+	}
+
+	const feedsList = await db.select().from(feeds).where(eq(feeds.userId, userId));
+
+	return json({ feeds: feedsList });
 };

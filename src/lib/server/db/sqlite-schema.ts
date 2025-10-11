@@ -73,6 +73,8 @@ export const folder = sqliteTable(
 	(table) => [uniqueIndex('user_folder_path_idx').on(table.userId, table.folderPath)]
 );
 
+export type SelectFolder = typeof folder.$inferSelect;
+
 export const feeds = sqliteTable(
 	'feeds',
 	{
@@ -95,6 +97,8 @@ export const feeds = sqliteTable(
 		uniqueIndex('user_slug_idx').on(table.userId, table.slug)
 	]
 );
+
+export type SelectFeed = typeof feeds.$inferSelect;
 
 export const feedItems = sqliteTable('feed_items', {
 	id: int('id').primaryKey({ autoIncrement: true }),

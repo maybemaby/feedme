@@ -5,12 +5,14 @@
 	import AddFolder from './add-folder.svelte';
 	import * as Collapsible from './ui/collapsible/index';
 
+	let { folderNodes }: { folderNodes?: FolderTreeNode[] } = $props();
 	let foldersOpen = $state(true);
 	let addingFolder = $state(false);
 
-	const onTreeItemClick = (name: string) => {
+	const onTreeItemClick = (name: string | number) => {
 		console.log('Clicked on item:', name);
 	};
+
 	const nodes: FolderTreeNode[] = [
 		{
 			id: 'folder-1',
@@ -72,9 +74,12 @@
 			{/if}
 
 			<Collapsible.Content>
-				{#each nodes as node (node.id)}
+				{#each folderNodes as node (node.id)}
 					<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
 				{/each}
+				<!-- {#each nodes as node (node.id)}
+					<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
+				{/each} -->
 			</Collapsible.Content>
 		</Collapsible.Root>
 	</div>

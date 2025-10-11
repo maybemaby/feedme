@@ -1,5 +1,6 @@
 import { resource, type Getter } from 'runed';
 import type { AddFolderRequest } from '../../routes/api/folders/+server';
+import type { SelectFolder } from '$lib/server/db/sqlite-schema';
 
 export const addFolderResource = (data: Getter<AddFolderRequest>) => {
 	return resource(
@@ -23,4 +24,22 @@ export const addFolderResource = (data: Getter<AddFolderRequest>) => {
 		},
 		{ lazy: true }
 	);
+};
+
+export const getFoldersResource = () => {
+	const foldersResource = resource(
+		() => 'folders',
+		async (_id, _prevId, { signal }) => {
+			const res = await fetch('/api/folders', { signal });
+
+			if (!res.ok) {
+				const errorData = await res.text();
+				throw new Error(errorData || 'Failed to fetch folders');
+			}
+
+			return res.json() as Promise<{ folders: SelectFolder[] }>;
+		}
+	);
+
+	return foldersResource;
 };
