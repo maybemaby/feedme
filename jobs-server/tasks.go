@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -46,17 +47,20 @@ func HandleStartRefreshTask(ctx context.Context, task StartRefreshTask) error {
 	resp, err := client.Do(req)
 
 	if err != nil {
+		slog.Default().Error("Error making request to start refresh", slog.String("error", err.Error()))
 		return err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		slog.Default().Error("Unexpected status code", slog.Int("status_code", resp.StatusCode))
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	var refreshResponse RefreshResponse
 	if err := json.NewDecoder(resp.Body).Decode(&refreshResponse); err != nil {
+		slog.Default().Error("Error decoding response", slog.String("error", err.Error()))
 		return err
 	}
 
