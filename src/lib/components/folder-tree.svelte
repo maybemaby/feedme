@@ -14,19 +14,29 @@
 	let {
 		node,
 		onFolderClick,
-		onItemClick
+		onItemClick,
+		onFolderToggle,
+		openFolders
 	}: {
 		node: FolderTreeNode;
 		onFolderClick?: (name: string | number) => void;
 		onItemClick?: (name: string | number) => void;
+		onFolderToggle?: (name: string | number) => void;
+		openFolders?: Set<string | number>;
 	} = $props();
-	let open = $state(false);
+
+	let open = $derived.by(() => (openFolders ? openFolders.has(node.id) : false));
+
+	const toggle = () => {
+		open = !open;
+		onFolderToggle?.(node.id);
+	};
 </script>
 
 {#if node.type === 'folder'}
 	<div>
 		<div class="flex gap-2">
-			<button onclick={() => (open = !open)} aria-label="Toggle Folder">
+			<button onclick={toggle} aria-label="Toggle Folder">
 				<span class="sr-only">Toggle Folder {node.label}</span>
 				{#if open}
 					<FolderOpen size={16} />
@@ -43,7 +53,7 @@
 			{#if open}
 				{#if node.children}
 					{#each node.children as child (child.id)}
-						<FolderTree node={child} {onFolderClick} {onItemClick} />
+						<FolderTree node={child} {onFolderClick} {onItemClick} {onFolderToggle} {openFolders} />
 					{/each}
 				{/if}
 			{/if}

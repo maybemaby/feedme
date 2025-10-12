@@ -5,45 +5,29 @@
 	import AddFolder from './add-folder.svelte';
 	import * as Collapsible from './ui/collapsible/index';
 	import { goto } from '$app/navigation';
+	import { getFolderTreeState } from '$lib/state/folderTree.svelte';
 
 	let { folderNodes }: { folderNodes?: FolderTreeNode[] } = $props();
 	let foldersOpen = $state(true);
 	let addingFolder = $state(false);
 
-	const onTreeItemClick = (name: string | number) => {
-		console.log('Clicked on item:', name);
+	const folderTreeState = getFolderTreeState();
+
+	const onFolderClick = (name: string | number) => {
+		// folderTreeState.toggleFolder(name as string);
+		console.log('Clicked on folder:', name);
+	};
+
+	const onToggle = (name: string | number) => {
+		console.log('Toggled folder:', name);
+		folderTreeState.toggleFolder(name as string);
 	};
 
 	const onItemClick = (name: string | number) => {
 		goto(`/feeds/view/${name}`);
 	};
 
-	// const nodes: FolderTreeNode[] = [
-	// 	{
-	// 		id: 'folder-1',
-	// 		label: 'Folder 1',
-	// 		type: 'folder',
-	// 		children: [
-	// 			{ id: 'feed-1', label: 'Feed 1', type: 'item' },
-	// 			{ id: 'feed-2', label: 'Feed 2', type: 'item' }
-	// 		]
-	// 	},
-	// 	{
-	// 		id: 'folder-2',
-	// 		label: 'Folder 2',
-	// 		type: 'folder',
-	// 		children: [
-	// 			{ id: 'feed-3', label: 'Feed 3', type: 'item' },
-	// 			{
-	// 				id: 'folder-3',
-	// 				label: 'Subfolder 1',
-	// 				type: 'folder',
-	// 				children: [{ id: 'feed-4', label: 'Feed 4', type: 'item' }]
-	// 			}
-	// 		]
-	// 	},
-	// 	{ id: 'feed-5', label: 'Feed 5', type: 'item' }
-	// ];
+	$inspect(folderTreeState.openFolders);
 </script>
 
 <div class="p-4">
@@ -83,7 +67,12 @@
 				class="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden"
 			>
 				{#each folderNodes as node (node.id)}
-					<FolderTree {node} onFolderClick={onTreeItemClick} {onItemClick} />
+					<FolderTree
+						{node}
+						onFolderToggle={onToggle}
+						{onItemClick}
+						openFolders={folderTreeState.openFolders}
+					/>
 				{/each}
 				<!-- {#each nodes as node (node.id)}
 					<FolderTree {node} onFolderClick={onTreeItemClick} onItemClick={onTreeItemClick} />
