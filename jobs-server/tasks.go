@@ -37,6 +37,7 @@ func HandleStartRefreshTask(ctx context.Context, task StartRefreshTask) error {
 	req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 
 	if err != nil {
+		slog.Default().Error("Error creating request", slog.String("error", err.Error()))
 		return err
 	}
 
@@ -115,18 +116,21 @@ func HandleRefreshFeedTask(ctx context.Context, task RefreshFeedTask) error {
 	req, err := http.NewRequest(http.MethodPost, endpoint, nil)
 
 	if err != nil {
+		slog.Default().Error("Error creating request", slog.String("error", err.Error()))
 		return err
 	}
 
 	resp, err := client.Do(req)
 
 	if err != nil {
+		slog.Default().Error("Error making request to refresh feed", slog.String("error", err.Error()))
 		return err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 300 {
+		slog.Default().Error("Unexpected status code", slog.Int("status_code", resp.StatusCode))
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 

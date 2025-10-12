@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
@@ -75,6 +76,12 @@ func main() {
 
 	configDefaultSlog()
 
+	api_key := os.Getenv("API_KEY")
+
+	if api_key == "" {
+		slog.Default().Warn("API_KEY environment variable is not set")
+	}
+
 	db, err := sql.Open("sqlite3", "./jobs.db")
 
 	if err != nil {
@@ -112,6 +119,18 @@ func main() {
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
+	})
+
+	mux.HandleFunc("POST /refresh", func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != fmt.Sprintf("Bearer %s", api_key) {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized"))
+			return
+		}
+
+		jobsClient.Add(StartRefreshTask{}).Ctx(r.Context()).Save()
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Refresh task scheduled"))
 	})
 
 	h, err := ui.NewHandler(ui.Config{
