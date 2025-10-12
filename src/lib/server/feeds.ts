@@ -78,13 +78,14 @@ export function transformAtom(feed: AtomFeed<string>) {
 
 	return ok(
 		feed.entries.map((item) => {
+			const publishField = item.updated || item.published;
 			return {
 				title: item.title,
 				sourceName: feed.title,
 				url: item.links?.[0]?.href || item.id,
 				description: item.content || item.summary,
 				image: item.media?.thumbnails?.[0]?.url,
-				publishedAt: item.published ? new Date(item.published) : new Date()
+				publishedAt: publishField ? new Date(publishField) : new Date()
 			} satisfies FeedItem;
 		})
 	);
