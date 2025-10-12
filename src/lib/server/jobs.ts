@@ -1,5 +1,5 @@
 import { and, eq, or, isNull, lte, inArray } from 'drizzle-orm';
-import { db } from './db';
+import { getDb } from './db/db';
 import { feeds } from './db/sqlite-schema';
 import { Ok, ok } from 'neverthrow';
 import { getFeedContent, parseFeedContent } from './feeds';
@@ -8,7 +8,7 @@ import type { OKResult } from '$lib/utils';
 import { upsertFeedItems } from './feeds-service';
 
 export async function refreshFeedsForUser(userId: string, logger?: Logger) {
-	const feedsRes = await db
+	const feedsRes = await getDb()
 		.select()
 		.from(feeds)
 		.where(
@@ -96,7 +96,7 @@ export async function refreshFeedsForUser(userId: string, logger?: Logger) {
 
 	await upsertFeedItems(feedData);
 
-	await db
+	await getDb()
 		.update(feeds)
 		.set({ refreshedAt: new Date() })
 		.where(

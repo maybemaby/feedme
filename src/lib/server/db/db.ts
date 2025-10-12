@@ -15,15 +15,25 @@ const logger: Logger = {
 	}
 };
 
-export const db = drizzle({
-	schema,
-	logger: process.env.NODE_ENV === 'development' ? logger : false,
-	connection: {
-		url: env.DATABASE_URL
-	}
-});
+function createDb() {
+	return drizzle({
+		schema,
+		logger: process.env.NODE_ENV === 'development' ? logger : false,
+		connection: {
+			url: env.DATABASE_URL
+		}
+	});
+}
+let _db: ReturnType<typeof createDb>;
 
-export type DBorTransaction = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+export function getDb() {
+	if (!_db) {
+		_db = createDb();
+	}
+	return _db;
+}
+
+export type DBorTransaction = typeof _db | Parameters<Parameters<typeof _db.transaction>[0]>[0];
 
 export type PaginationOptions = {
 	page?: number;

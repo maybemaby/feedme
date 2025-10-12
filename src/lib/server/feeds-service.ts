@@ -1,9 +1,9 @@
 import { getTableColumns, sql, eq, desc, and, count, or } from 'drizzle-orm';
-import { db } from './db';
+import { getDb } from './db/db';
 import { feedItems, feeds, type InsertFeedItem } from './db/sqlite-schema';
 
 export async function upsertFeedItems(data: InsertFeedItem[]) {
-	return await db
+	return await getDb()
 		.insert(feedItems)
 		.values(data)
 		.onConflictDoUpdate({
@@ -31,7 +31,7 @@ export async function findFeedItems(params?: FindFeedItemsParams) {
 // For use in batched calls
 export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
 	const page = params?.page || 1;
-	return db
+	return getDb()
 		.select({
 			...getTableColumns(feedItems),
 			feedSlug: feeds.slug,
@@ -60,7 +60,7 @@ export async function countFeedItems(params: Omit<FindFeedItemsParams, 'page'>) 
 }
 
 export function countFeedItemsBuilder(params: Omit<FindFeedItemsParams, 'page'>) {
-	return db
+	return getDb()
 		.select({
 			count: count(feedItems.id)
 		})

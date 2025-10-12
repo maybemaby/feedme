@@ -2,7 +2,7 @@ import { flattenError, z } from 'zod';
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
 import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db/db';
 import { feeds, type InsertFeedItem } from '$lib/server/db/sqlite-schema';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '$lib/utils';
@@ -41,7 +41,7 @@ export const POST: RequestHandler = async (event) => {
 	const sourceName = parseRes.value[0].sourceName;
 	const slug = slugify(sourceName);
 
-	const [insertedFeed] = await db
+	const [insertedFeed] = await getDb()
 		.insert(feeds)
 		.values({
 			createdAt: new Date(),
@@ -91,7 +91,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		return json({ message: 'Unauthorized' }, { status: 401 });
 	}
 
-	const feedsList = await db.select().from(feeds).where(eq(feeds.userId, userId));
+	const feedsList = await getDb().select().from(feeds).where(eq(feeds.userId, userId));
 
 	return json({ feeds: feedsList });
 };

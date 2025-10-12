@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db/db';
 import { feeds } from '$lib/server/db/sqlite-schema';
 import { and, eq, inArray, isNull, lte, or } from 'drizzle-orm';
 import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
@@ -14,7 +14,7 @@ export const POST: RequestHandler = async (event) => {
 		return json({ message: 'Unauthorized' }, { status: 401 });
 	}
 
-	const feedsRes = await db
+	const feedsRes = await getDb()
 		.select()
 		.from(feeds)
 		.where(
@@ -109,7 +109,7 @@ export const POST: RequestHandler = async (event) => {
 
 	await upsertFeedItems(feedData);
 
-	await db
+	await getDb()
 		.update(feeds)
 		.set({ refreshedAt: new Date() })
 		.where(
@@ -132,7 +132,7 @@ export const POST: RequestHandler = async (event) => {
 };
 
 export const GET: RequestHandler = async () => {
-	const feedsList = await db
+	const feedsList = await getDb()
 		.select({
 			id: feeds.id
 		})

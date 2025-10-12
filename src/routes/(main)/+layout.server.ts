@@ -1,10 +1,10 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db/db';
 import { feeds, folder } from '$lib/server/db/sqlite-schema';
 import { asc, eq, or } from 'drizzle-orm';
 import type { FolderTreeNode } from '$lib/components/folder-tree.svelte';
-import { inspect } from 'node:util';
+// import { inspect } from 'node:util';
 
 export const load: LayoutServerLoad = async (event) => {
 	const loggedIn = !!event.locals.session;
@@ -13,7 +13,7 @@ export const load: LayoutServerLoad = async (event) => {
 		throw redirect(303, '/auth/login');
 	}
 
-	const folderList = await db
+	const folderList = await getDb()
 		.select({
 			folder: {
 				folderId: folder.id,

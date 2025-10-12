@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { countFeedItemsBuilder, findFeedItemsBuilder } from '$lib/server/feeds-service';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db/db';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const userId = locals.session?.user.id;
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// });
 	// return { feedItems: feedItemRes, page, feedCount };
 
-	const [[feedCountRes], feedItemsRes] = await db.batch([
+	const [[feedCountRes], feedItemsRes] = await getDb().batch([
 		countFeedItemsBuilder({ userId }),
 		findFeedItemsBuilder({ userId, page })
 	]);

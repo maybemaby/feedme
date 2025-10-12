@@ -1,12 +1,12 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
-import { db } from './db';
+import { getDb } from './db/db';
 import { env } from '$env/dynamic/private';
 import { getRequestEvent } from '$app/server';
 
 export const auth = betterAuth({
-	database: drizzleAdapter(db, {
+	database: drizzleAdapter(getDb(), {
 		provider: 'pg'
 	}),
 	logger: process.env.NODE_ENV === 'development' ? console : undefined,

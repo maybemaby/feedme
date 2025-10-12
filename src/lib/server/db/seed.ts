@@ -1,5 +1,5 @@
 import { seed } from 'drizzle-seed';
-import { db } from '.';
+import { getDb } from '.';
 import { feeds } from './sqlite-schema';
 
 async function main() {

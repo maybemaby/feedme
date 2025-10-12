@@ -2,7 +2,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { validateAction } from 'vital-kit/validation';
 import type { PageServerLoad, Actions } from './$types';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db/db';
 import { feeds } from '$lib/server/db/sqlite-schema';
 import { editFeedSchema } from '$lib/hooks/feed.svelte';
 
@@ -13,7 +13,7 @@ export const load: PageServerLoad = async (event) => {
 		throw redirect(303, '/');
 	}
 
-	const [feed] = await db
+	const [feed] = await getDb()
 		.select()
 		.from(feeds)
 		.where(and(eq(feeds.userId, userId), eq(feeds.slug, event.params.slug)));
@@ -38,7 +38,7 @@ export const actions: Actions = {
 		}
 
 		// Should we check if the feed returns valid content here?
-		await db
+		await getDb()
 			.update(feeds)
 			.set({
 				url: res.value.url,
@@ -58,7 +58,7 @@ export const actions: Actions = {
 			throw error(401, 'Unauthorized');
 		}
 
-		const feed = await db
+		const feed = await getDb()
 			.delete(feeds)
 			.where(and(eq(feeds.userId, userId), eq(feeds.slug, params.slug)))
 			.returning();

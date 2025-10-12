@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
+import { getDb } from '$lib/server/db/db';
 import { folder } from '$lib/server/db/sqlite-schema';
 import type { RequestHandler } from './$types';
 import * as z from 'zod';
@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	let folderPath = parseRes.data.name;
 
 	if (parseRes.data.parentId) {
-		const [parentFolder] = await db
+		const [parentFolder] = await getDb()
 			.select()
 			.from(folder)
 			.where(eq(folder.id, parseRes.data.parentId))
@@ -44,7 +44,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 		folderPath = parentFolder.folderPath + '.' + parseRes.data.name;
 	}
 
-	const [newFolder] = await db
+	const [newFolder] = await getDb()
 		.insert(folder)
 		.values({
 			name: parseRes.data.name,
@@ -64,7 +64,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	const folders = await db
+	const folders = await getDb()
 		.select()
 		.from(folder)
 		.where(eq(folder.userId, userId))

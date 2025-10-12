@@ -1,13 +1,13 @@
 import { eq } from 'drizzle-orm';
 import { err, ok } from 'neverthrow';
 import { type Logger } from 'pino';
-import { db } from '../db';
+import { getDb } from '../db/db';
 import { feeds } from '../db/sqlite-schema';
 import { getFeedContent, parseFeedContent } from '../feeds';
 import { upsertFeedItems } from '../feeds-service';
 
 export async function refreshFeed(feedId: string, logger?: Logger) {
-	const [feed] = await db.select().from(feeds).where(eq(feeds.id, feedId));
+	const [feed] = await getDb().select().from(feeds).where(eq(feeds.id, feedId));
 
 	if (!feed) {
 		return err({ cause: 'feed-not-found' as const, message: 'Feed not found' });
@@ -43,7 +43,7 @@ export async function refreshFeed(feedId: string, logger?: Logger) {
 	try {
 		await upsertFeedItems(feedItems);
 
-		await db.update(feeds).set({ refreshedAt: new Date() }).where(eq(feeds.id, feed.id));
+		await getDb().update(feeds).set({ refreshedAt: new Date() }).where(eq(feeds.id, feed.id));
 		return ok({ feed, newItems: feedItems.length });
 	} catch (e) {
 		logger?.error({ err: e }, 'Error upserting feed items or updating feed');
