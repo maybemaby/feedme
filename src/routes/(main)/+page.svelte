@@ -25,6 +25,8 @@
 <div class="flex flex-col">
 	<!-- <Button class="rounded-none" onclick={() => refresh.refetch()}>Refresh Feeds</Button> -->
 
+	<h1 class="mb-4 text-xl font-bold">All Feeds</h1>
+
 	<div class="py-4">
 		{#each Object.entries(groupedItems) as [date, items] (date)}
 			<div class="mb-8 border-b">
