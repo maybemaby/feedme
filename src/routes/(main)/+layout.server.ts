@@ -4,7 +4,27 @@ import { getDb } from '$lib/server/db/db';
 import { feeds, folder } from '$lib/server/db/sqlite-schema';
 import { asc, eq, or } from 'drizzle-orm';
 import type { FolderTreeNode } from '$lib/components/folder-tree.svelte';
-// import { inspect } from 'node:util';
+import { addChildAtPath } from '$lib/folderTree';
+
+function findRootFolder(
+	folderNodes: Map<number | string, FolderTreeNode>,
+	parentGraph: Map<number | string, number | string>,
+	startingId: number | string
+): FolderTreeNode | undefined {
+	let currentId: number | string | undefined = startingId;
+
+	while (true) {
+		if (!currentId) return;
+
+		const folderNode = folderNodes.get(currentId);
+
+		if (folderNode) {
+			return folderNode;
+		}
+
+		currentId = parentGraph.get(currentId);
+	}
+}
 
 export const load: LayoutServerLoad = async (event) => {
 	const loggedIn = !!event.locals.session;
@@ -25,7 +45,8 @@ export const load: LayoutServerLoad = async (event) => {
 				id: feeds.id,
 				name: feeds.name,
 				slug: feeds.slug,
-				url: feeds.url
+				url: feeds.url,
+				folderId: feeds.folderId
 			}
 		})
 		.from(folder)
@@ -38,28 +59,32 @@ export const load: LayoutServerLoad = async (event) => {
 		)
 		.orderBy(asc(folder.parentId));
 
-	// console.log(inspect(folderList));
+	const parentMap = new Map<number | string, number | string>();
 
 	const folderNodes: Map<number | string, FolderTreeNode> = new Map();
-
-	// ONLY works for 2 level deep folders currently NEEDS FIXING
 
 	for (const { folder, feed } of folderList) {
 		if (folder && !feed) {
 			if (folder.parentId) {
-				const parentFolder = folderNodes.get(folder.parentId);
+				parentMap.set(folder.folderId, folder.parentId);
 
-				if (!parentFolder) {
+				const rootNode = findRootFolder(folderNodes, parentMap, folder.parentId);
+
+				if (!rootNode) {
 					throw new Error(`Parent folder not found for ${folder.folderName}`);
 				}
 
-				parentFolder.children = parentFolder.children || [];
-				parentFolder.children.push({
-					id: folder.folderId,
-					label: folder.folderName,
-					type: 'folder',
-					children: []
-				});
+				// Add nested folder to root tree
+				addChildAtPath(
+					rootNode,
+					{
+						id: folder.folderId,
+						label: folder.folderName,
+						type: 'folder',
+						children: []
+					},
+					folder.folderPath
+				);
 			} else {
 				folderNodes.set(folder.folderId, {
 					id: folder.folderId,
@@ -69,39 +94,70 @@ export const load: LayoutServerLoad = async (event) => {
 				});
 			}
 		} else if (!folder && feed) {
+			// Feed without folder, add to root
 			folderNodes.set(feed.id, {
 				id: feed.id,
 				label: feed.name,
 				type: 'item'
 			});
 		} else if (folder && feed) {
-			if (!folderNodes.has(folder.folderId)) {
-				folderNodes.set(folder.folderId, {
-					id: folder.folderId,
-					label: folder.folderName,
-					type: 'folder',
-					children: []
-				});
-			}
+			// Feed with folder
+			// Simple folder node check and assign if no parent
+			if (!folder.parentId) {
+				let folderNode = folderNodes.get(folder.folderId);
 
-			if (folder.parentId) {
-				const parentFolder = folderNodes.get(folder.parentId);
+				if (!folderNode) {
+					folderNode = {
+						id: folder.folderId,
+						label: folder.folderName,
+						type: 'folder',
+						children: [
+							{
+								id: feed.id,
+								label: feed.name,
+								type: 'item'
+							}
+						]
+					};
+
+					folderNodes.set(folder.folderId, folderNode);
+				} else {
+					folderNode.children = folderNode.children || [];
+					folderNode.children.push({
+						id: feed.id,
+						label: feed.name,
+						type: 'item'
+					});
+				}
+			} else {
+				parentMap.set(folder.folderId, folder.parentId);
+
+				const parentFolder = findRootFolder(folderNodes, parentMap, folder.parentId);
 
 				if (!parentFolder) {
-					throw new Error('Parent folder not found for ' + folder.folderName);
+					throw new Error(`Parent folder not found for ${folder.folderName}`);
 				}
 
-				parentFolder.children = parentFolder.children || [];
-				parentFolder.children.push({
-					id: folder.folderId,
-					label: feed.name,
-					type: 'item'
-				});
+				// Add nested folder to root tree
+				addChildAtPath(
+					parentFolder,
+					{
+						id: folder.folderId,
+						label: folder.folderName,
+						type: 'folder',
+						children: [
+							{
+								id: feed.id,
+								label: feed.name,
+								type: 'item'
+							}
+						]
+					},
+					folder.folderPath
+				);
 			}
 		}
 	}
-
-	// console.log(inspect(folderNodes, true, 10));
 
 	const folderTree: FolderTreeNode[] = Array.from(folderNodes.values());
 
