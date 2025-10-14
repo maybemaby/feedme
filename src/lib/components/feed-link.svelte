@@ -20,7 +20,7 @@
 	</a>
 	<div class="flex items-center gap-4 text-sm">
 		{#if showFeedName}
-			<a href={`/feeds/view/${item.feedId}`}>
+			<a href={`/feeds/view/${item.feedId}`} class="hover:underline">
 				{item.feedName}
 			</a>
 		{/if}
