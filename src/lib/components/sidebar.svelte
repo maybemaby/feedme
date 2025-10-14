@@ -26,8 +26,6 @@
 	const onItemClick = (name: string | number) => {
 		goto(`/feeds/view/${name}`);
 	};
-
-	$inspect(folderTreeState.openFolders);
 </script>
 
 <div class="p-4">

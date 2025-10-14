@@ -8,6 +8,7 @@
 	import Sidebar from '$lib/components/sidebar.svelte';
 	import { PanelLeft } from '@lucide/svelte';
 	import type { LayoutProps } from './$types';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	let { data, children }: LayoutProps = $props();
 
@@ -15,7 +16,32 @@
 		await authClient.signOut();
 		await invalidateAll();
 	}
+
+	let latestFocusFetch = new SvelteDate();
+
+	const handleFocus = () => {
+		const currentTime = Date.now();
+
+		if (currentTime - latestFocusFetch.getDate() < 5000) {
+			// If the last focus was less than 5 seconds ago, do nothing
+			return;
+		}
+
+		console.log('Window focused, invalidating data...');
+		invalidateAll();
+
+		latestFocusFetch.setDate(Date.now());
+	};
 </script>
+
+<svelte:window onfocus={handleFocus} />
+<svelte:document
+	onvisibilitychange={(e) => {
+		if (e.currentTarget.visibilityState === 'visible') {
+			handleFocus();
+		}
+	}}
+/>
 
 <div class="flex h-screen">
 	<aside class="bg-card hidden h-full w-[300px] border-r lg:block">

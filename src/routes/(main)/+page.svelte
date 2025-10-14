@@ -10,8 +10,6 @@
 	// State for view mode
 	let viewMode = new PersistedState('feedViewMode', 'list' as 'list' | 'grid');
 
-	$inspect(viewMode.current);
-
 	const navigatePage = (page: number) => {
 		goto(`/?p=${page}`);
 	};
