@@ -13,7 +13,8 @@
 	import { toast } from 'svelte-sonner';
 	import * as Dropdown from './ui/dropdown-menu/index';
 	import AddFolder from './add-folder.svelte';
-	import { deleteFolderResource } from '$lib/hooks/folders.svelte';
+	import { deleteFolderResource, updateFolderResource } from '$lib/hooks/folders.svelte';
+	import { Input } from './ui/input';
 
 	let {
 		node,
@@ -32,8 +33,19 @@
 	} = $props();
 
 	let addingFolder = $state(false);
+	let editingName = $state(false);
+	let newName = $state(node.label);
 	let open = $derived.by(() => (openFolders ? openFolders.has(node.id) : false));
+
+	let editFolderRef = $state<HTMLInputElement | null>(null);
+
 	const deleteFolder = deleteFolderResource(() => node.id as number);
+	const editFolder = updateFolderResource(
+		() => node.id as number,
+		() => ({
+			name: newName
+		})
+	);
 
 	const toggle = () => {
 		open = !open;
@@ -51,9 +63,22 @@
 		onDeleteFolder?.(node.id);
 	};
 
+	const onSubmitRename = async (event: SubmitEvent) => {
+		event.preventDefault();
+
+		await editFolder.refetch();
+		editingName = false;
+	};
+
 	$effect(() => {
 		if (deleteFolder.error) {
 			toast.error(deleteFolder.error.message);
+		}
+	});
+
+	$effect(() => {
+		if (editingName) {
+			editFolderRef?.focus();
 		}
 	});
 </script>
@@ -69,10 +94,28 @@
 					<FolderClosed size={16} />
 				{/if}
 			</button>
-			<button
-				onclick={() => onFolderClick?.(node.id)}
-				class="hover:bg-muted/70 w-full p-1 text-start">{node.label}</button
-			>
+
+			{#if editingName}
+				<form onsubmit={onSubmitRename}>
+					<Input
+						type="text"
+						name="folderName"
+						placeholder="Folder Name"
+						bind:ref={editFolderRef}
+						onblur={() => {
+							editingName = false;
+							newName = node.label;
+						}}
+						class="rounded-none focus-visible:ring-0"
+						bind:value={newName}
+					/>
+				</form>
+			{:else}
+				<button
+					onclick={() => onFolderClick?.(node.id)}
+					class="hover:bg-muted/70 w-full p-1 text-start">{node.label}</button
+				>
+			{/if}
 			<Dropdown.Root>
 				<Dropdown.Trigger>
 					<EllipsisVertical size={14} />
@@ -83,7 +126,7 @@
 							<Plus size={14} />
 							Add Subfolder</Dropdown.Item
 						>
-						<Dropdown.Item>
+						<Dropdown.Item onclick={() => (editingName = true)}>
 							<Pencil size={14} /> Rename
 						</Dropdown.Item>
 						<Dropdown.Item onclick={onDelete}>

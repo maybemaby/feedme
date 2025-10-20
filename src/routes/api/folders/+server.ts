@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 
 const addFolderSchema = z.object({
 	name: z.string().min(1).max(30),
-	parentId: z.int().nullable()
+	parentId: z.int().nullable().optional()
 });
 
 export type AddFolderRequest = z.infer<typeof addFolderSchema>;
