@@ -12,12 +12,12 @@
 
 	let { data, children }: LayoutProps = $props();
 
+	let latestFocusFetch = new SvelteDate();
+
 	async function handleLogout() {
 		await authClient.signOut();
 		await invalidateAll();
 	}
-
-	let latestFocusFetch = new SvelteDate();
 
 	const handleFocus = () => {
 		const currentTime = Date.now();

@@ -161,6 +161,8 @@ export const load: LayoutServerLoad = async (event) => {
 
 	const folderTree: FolderTreeNode[] = Array.from(folderNodes.values());
 
+	event.depends('folders');
+
 	return {
 		loggedIn,
 		folderTree

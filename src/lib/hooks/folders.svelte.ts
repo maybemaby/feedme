@@ -1,6 +1,7 @@
 import { resource, type Getter } from 'runed';
 import type { AddFolderRequest } from '../../routes/api/folders/+server';
 import type { SelectFolder } from '$lib/server/db/sqlite-schema';
+import { invalidate } from '$app/navigation';
 
 export const addFolderResource = (data: Getter<AddFolderRequest>) => {
 	return resource(
@@ -19,6 +20,8 @@ export const addFolderResource = (data: Getter<AddFolderRequest>) => {
 				const errorData = await res.text();
 				throw new Error(errorData || 'Failed to add folder');
 			}
+
+			invalidate('folders');
 
 			return null;
 		},
@@ -42,4 +45,28 @@ export const getFoldersResource = () => {
 	);
 
 	return foldersResource;
+};
+
+export const deleteFolderResource = (folderId: Getter<number>) => {
+	return resource(
+		() => `delete-folder`,
+		async (id, prevId, { signal }) => {
+			const res = await fetch(`/api/folders/${folderId()}`, {
+				method: 'DELETE',
+				signal
+			});
+
+			if (!res.ok) {
+				const errorData = await res.text();
+				throw new Error(errorData || 'Failed to delete folder');
+			}
+
+			invalidate('folders');
+
+			return null;
+		},
+		{
+			lazy: true
+		}
+	);
 };

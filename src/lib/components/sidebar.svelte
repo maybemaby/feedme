@@ -19,7 +19,6 @@
 	};
 
 	const onToggle = (name: string | number) => {
-		console.log('Toggled folder:', name);
 		folderTreeState.toggleFolder(name as string);
 	};
 
