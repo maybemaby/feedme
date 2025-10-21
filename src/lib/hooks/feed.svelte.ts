@@ -2,6 +2,7 @@ import { resource, type Getter } from 'runed';
 import type { PostFeedResponse } from '../../routes/api/feeds/+server';
 import type { SelectFeed } from '$lib/server/db/sqlite-schema';
 import * as z from 'zod';
+import type { SearchResponse } from '../../routes/api/search/+server';
 
 export const editFeedSchema = z.object({
 	url: z.url().optional(),
@@ -75,4 +76,35 @@ export function getFeedsResource() {
 	);
 
 	return feedsResource;
+}
+
+export async function searchAllApi(
+	query: string,
+	{ signal, fetch: customFetch }: { signal?: AbortSignal; fetch?: typeof fetch } = {}
+) {
+	const fetchApi = customFetch || fetch;
+
+	const res = await fetchApi(`/api/search?q=${encodeURIComponent(query)}`, {
+		signal
+	});
+
+	if (!res.ok) {
+		const errMsg = await res.text();
+		throw new Error(errMsg || 'Failed to search');
+	}
+
+	return res.json() as Promise<SearchResponse>;
+}
+
+export function searchAllResource(query: Getter<string>) {
+	return resource(
+		[() => 'search', () => query()],
+		async (id, _prevId, { signal }) => {
+			return searchAllApi(query(), { signal });
+		},
+		{
+			lazy: true,
+			debounce: 300
+		}
+	);
 }

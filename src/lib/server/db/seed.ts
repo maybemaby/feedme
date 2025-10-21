@@ -3,6 +3,7 @@ import { getDb } from '.';
 import { feeds } from './sqlite-schema';
 
 async function main() {
+	const db = getDb();
 	await seed(db, { feeds }).refine((f) => ({
 		feeds: {
 			count: 50,

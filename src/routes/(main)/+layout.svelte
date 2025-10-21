@@ -4,6 +4,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
+	import AppSearch from './search.svelte';
 	import AddFeed from '$lib/components/add-feed.svelte';
 	import Sidebar from '$lib/components/sidebar.svelte';
 	import { PanelLeft } from '@lucide/svelte';
@@ -44,7 +45,7 @@
 />
 
 <div class="flex h-screen">
-	<aside class="bg-card hidden h-full w-[300px] border-r lg:block">
+	<aside class="bg-card hidden h-full min-w-[300px] border-r lg:block">
 		<Sidebar folderNodes={data.folderTree} />
 	</aside>
 	<div class="flex h-screen w-full grow flex-col">
@@ -60,8 +61,12 @@
 				</Sheet.Root>
 			</div>
 			<div class="flex items-center gap-3">
+				<AppSearch />
 				<Popover.Root>
-					<Popover.Trigger class="border-foreground h-8 w-8 border">+</Popover.Trigger>
+					<Popover.Trigger class="border-foreground size-8 shrink-0 border">
+						<span class="sr-only">Add feed</span>
+						+</Popover.Trigger
+					>
 					<Popover.Content sideOffset={12} align="end">
 						<div>
 							<AddFeed />
