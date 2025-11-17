@@ -2,7 +2,6 @@
 	import * as Select from './ui/select';
 	import { getFolders } from '$lib/folders.remote';
 
-	// eslint-disable-next-line svelte/no-unused-props
 	let props: { name?: string; id?: string; initialValue?: string | null } = $props();
 
 	let value = $derived(props.initialValue ?? '');

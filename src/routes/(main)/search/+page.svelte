@@ -1,7 +1,8 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
-	import  ArrowUpRight  from '@lucide/svelte/icons/arrow-up-right';
+	import ArrowUpRight from '@lucide/svelte/icons/arrow-up-right';
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 </script>
@@ -17,7 +18,7 @@
 	<ul>
 		{#each data.feeds as feed (feed.id)}
 			<li class="hover:bg-accent/60 cursor-pointer p-2">
-				<a href={`/feeds/view/${feed.slug}`}>
+				<a href={resolve(`/feeds/view/${feed.slug}`)}>
 					{feed.name}
 				</a>
 			</li>
@@ -30,6 +31,7 @@
 	<ul class="flex flex-col gap-2">
 		{#each data.feedItems as item (item.id)}
 			<li class="hover:bg-accent/60 flex w-fit items-center gap-2 p-2">
+				// eslint-disable-next-line svelte/no-navigation-without-resolve
 				<a href={item.url} target="_blank">{item.title} </a>
 				<ArrowUpRight class="text-muted-foreground" />
 			</li>

@@ -1,16 +1,20 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import Settings from '@lucide/svelte/icons/settings';
 	import FeedLink from '$lib/components/feed-link.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Pagination from '$lib/components/ui/pagination';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const navigatePage = (page: number) => {
-		goto(`/feeds/view/${data.feedId}?p=${page}`);
+		goto(resolve(`/feeds/view/${data.feedId}?p=${page}`));
 	};
 
 	const feedName = $derived(data.feedItems[0]?.feedName);
+	const feedSlug = $derived(data.feedItems[0]?.feedSlug);
 </script>
 
 {#snippet paginator(count: number)}
@@ -41,7 +45,18 @@
 	</Pagination.Root>
 {/snippet}
 
-<h1 class="text-xl font-bold">{feedName}</h1>
+<div class="flex items-center justify-between gap-4">
+	<h1 class="text-xl font-bold">{feedName}</h1>
+	<Button
+		size="icon"
+		variant="outline"
+		href={resolve(
+			`/feeds/manage/${feedSlug}?prev=${encodeURIComponent(`/feeds/view/${data.feedId}`)}`
+		)}
+	>
+		<Settings />
+	</Button>
+</div>
 
 <div class="py-4">
 	{#each data.feedItems as item (item.id)}

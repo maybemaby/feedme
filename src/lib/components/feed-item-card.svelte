@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { type FeedItem } from './feed-view.svelte';
 
 	let { item }: { item: FeedItem } = $props();
@@ -12,7 +13,7 @@
 			</h2>
 		</a>
 		<div class="text-foreground/70 flex flex-col gap-2 text-sm hover:underline">
-			<a href={`/feeds/view/${item.feedId}`}>
+			<a href={resolve(`/feeds/view/${item.feedId}`)}>
 				{item.feedName}
 			</a>
 		</div>
