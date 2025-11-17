@@ -7,7 +7,7 @@
 
 	const foldersResource = getFoldersResource();
 
-	let value = $state(props.initialValue ?? '');
+	let value = $derived(props.initialValue ?? '');
 
 	let label = $derived.by(() => {
 		const folder = foldersResource.current?.folders.find((f) => f.id.toString() === value);

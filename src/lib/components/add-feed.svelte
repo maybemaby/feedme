@@ -6,7 +6,7 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { addFeedResource } from '$lib/hooks/feed.svelte';
 	import type { FormEventHandler } from 'svelte/elements';
-	import EditFeed from './edit-feed.svelte';
+	import EditFeed from '../../routes/(main)/feeds/manage/[slug]/edit-feed.svelte';
 
 	let url = $state('');
 
