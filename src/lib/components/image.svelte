@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Image } from '@unpic/svelte';
-	import { transform } from 'unpic/providers/cloudflare';
 
 	import type { ComponentProps } from 'svelte';
 

@@ -6,11 +6,17 @@
 	import { page } from '$app/state';
 
 	let slug = page.params.slug;
+	let prev = page.url.searchParams.get('prev');
 </script>
 
 <div>
 	{#each [await loadFeed(slug!)] as { feed } (feed.id)}
-		<a href={resolve('/feeds/manage')} class="text-sm">← Back to Manage Feeds</a>
+		{#if prev}
+			<a href={prev} class="text-sm">← Back</a>
+		{:else}
+			<a href={resolve('/feeds/manage')} class="text-sm">← Back to Manage Feeds</a>
+		{/if}
+
 		<h1 class="mt-4 text-2xl">{feed.name}</h1>
 		<p class="mb-8 text-sm font-light">
 			Last Refreshed: {feed.refreshedAt?.toLocaleString()}

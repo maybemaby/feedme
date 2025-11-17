@@ -7,7 +7,7 @@
 	import AppSearch from './search.svelte';
 	import AddFeed from '$lib/components/add-feed.svelte';
 	import Sidebar from '$lib/components/sidebar.svelte';
-	import  PanelLeft  from '@lucide/svelte/icons/panel-left';
+	import PanelLeft from '@lucide/svelte/icons/panel-left';
 	import type { LayoutProps } from './$types';
 	import { SvelteDate } from 'svelte/reactivity';
 
