@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
-	import { ArrowUpRight } from '@lucide/svelte';
+	import  ArrowUpRight  from '@lucide/svelte/icons/arrow-up-right';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();

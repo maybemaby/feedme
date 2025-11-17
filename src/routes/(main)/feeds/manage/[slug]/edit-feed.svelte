@@ -36,7 +36,7 @@
 		/>
 	</FormGroup>
 	<Button type="submit" class="mt-4 rounded-none active:scale-95" size="lg">Save</Button>
-	{#if editFeed.result?.success}
+	{#if editFeed.result?.success && !editFeed.pending}
 		<p class="text-success">Feed updated successfully!</p>
 	{/if}
 </form>

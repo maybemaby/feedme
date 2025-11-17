@@ -9,12 +9,19 @@
 
 <script lang="ts">
 	import FolderTree from './folder-tree.svelte';
-	import { FolderOpen, FolderClosed, Plus, EllipsisVertical, Trash, Pencil } from '@lucide/svelte';
+	import FolderOpen from '@lucide/svelte/icons/folder-open';
+	import FolderClosed from '@lucide/svelte/icons/folder-closed';
+	import Plus from '@lucide/svelte/icons/plus';
+	import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
+	import Trash from '@lucide/svelte/icons/trash';
+	import Pencil from '@lucide/svelte/icons/pencil';
 	import { toast } from 'svelte-sonner';
 	import * as Dropdown from './ui/dropdown-menu/index';
 	import AddFolder from './add-folder.svelte';
-	import { deleteFolderResource, updateFolderResource } from '$lib/hooks/folders.svelte';
+	import { updateFolderResource } from '$lib/hooks/folders.svelte';
+	import { deleteFolder } from '$lib/folders.remote';
 	import { Input } from './ui/input';
+	import { invalidate } from '$app/navigation';
 
 	let {
 		node,
@@ -39,7 +46,7 @@
 
 	let editFolderRef = $state<HTMLInputElement | null>(null);
 
-	const deleteFolder = deleteFolderResource(() => node.id as number);
+	// const deleteFolder = deleteFolderResource(() => node.id as number);
 	const editFolder = updateFolderResource(
 		() => node.id as number,
 		() => ({
@@ -59,8 +66,15 @@
 
 	const onDelete = async () => {
 		// TODO: Figure out a way to separate the tree UI the app specific delete logic?
-		await deleteFolder.refetch();
-		onDeleteFolder?.(node.id);
+
+		try {
+			await deleteFolder({ folderId: node.id.toString() });
+			onDeleteFolder?.(node.id);
+			invalidate('folders');
+		} catch (e) {
+			console.error('Failed to delete folder:', e);
+			toast.error('Failed to delete folder.');
+		}
 	};
 
 	const onSubmitRename = async (event: SubmitEvent) => {
@@ -69,12 +83,6 @@
 		await editFolder.refetch();
 		editingName = false;
 	};
-
-	$effect(() => {
-		if (deleteFolder.error) {
-			toast.error(deleteFolder.error.message);
-		}
-	});
 
 	$effect(() => {
 		if (editingName) {
