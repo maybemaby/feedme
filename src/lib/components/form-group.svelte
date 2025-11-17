@@ -3,6 +3,7 @@
 	import type { ClassValue } from 'svelte/elements';
 	import { cn } from '../utils';
 	import type { FormFieldErrors } from '../hooks/forms.svelte';
+	import type { RemoteFormIssue } from '@sveltejs/kit';
 
 	let {
 		classname,
@@ -13,12 +14,18 @@
 	}: {
 		classname?: ClassValue;
 		hint?: string;
-		errors?: FormFieldErrors;
+		errors?: FormFieldErrors | RemoteFormIssue[];
 		field?: string;
 		children: Snippet;
 	} = $props();
 
-	let error = $derived(field && errors ? errors[field] : undefined);
+	let error = $derived.by(() => {
+		if (Array.isArray(errors)) {
+			return errors[0].message;
+		}
+
+		return field && errors ? errors[field] : undefined;
+	});
 </script>
 
 <div class={classname}>

@@ -45,7 +45,7 @@
 />
 
 <div class="flex h-screen">
-	<aside class="bg-card hidden h-full min-w-[300px] border-r lg:block">
+	<aside class="bg-card hidden h-full max-w-[300px] min-w-[300px] border-r lg:block">
 		<Sidebar folderNodes={data.folderTree} />
 	</aside>
 	<div class="flex h-screen w-full grow flex-col">
