@@ -7,7 +7,7 @@
 
 	let slug = page.params.slug;
 	let prev = page.url.searchParams.get('prev');
-	const { feed } = await loadFeed(slug!);
+	const res = await loadFeed(slug!);
 </script>
 
 <div>
@@ -17,20 +17,20 @@
 		<a href={resolve('/feeds/manage')} class="text-sm">← Back to Manage Feeds</a>
 	{/if}
 
-	<h1 class="mt-4 text-2xl">{feed.name}</h1>
+	<h1 class="mt-4 text-2xl">{res.feed.name}</h1>
 	<p class="mb-8 text-sm font-light">
-		Last Refreshed: {feed.refreshedAt?.toLocaleString()}
+		Last Refreshed: {res.feed.refreshedAt?.toLocaleString()}
 	</p>
 
 	<h2 class="mb-4 text-lg">Update Feed Properties</h2>
-	<EditFeed feedSlug={feed.slug} initialData={feed} />
+	<EditFeed feedSlug={res.feed.slug} initialData={res.feed} />
 	<hr class="my-8" />
 	<h2 class="mb-4 text-lg">Danger Zone</h2>
 	<p class="text-destructive">
 		Warning: Deleting the feed will remove all feed items, including the favorited ones.
 	</p>
 	<form {...deleteFeed}>
-		<input type="hidden" name="slug" value={feed.slug} />
+		<input type="hidden" name="slug" value={res.feed.slug} />
 		<Button
 			type="submit"
 			variant="destructive"
