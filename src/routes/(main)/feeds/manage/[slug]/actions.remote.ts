@@ -88,7 +88,8 @@ export const editFeed = form(
 		await loadFeed(data.slug).refresh();
 
 		return {
-			success: true
+			success: true,
+			feed: feed[0]
 		};
 	}
 );

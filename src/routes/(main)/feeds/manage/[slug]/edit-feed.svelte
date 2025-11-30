@@ -13,10 +13,14 @@
 		initialData
 	}: { feedSlug: string; initialData: { url: string; folderId: number | null } } = $props();
 
+	let defaultFieldId = $derived(editFeed.result?.feed.folderId ?? initialData.folderId);
+
 	$effect.pre(() => {
 		url.set(initialData.url);
-		if (initialData.folderId) {
-			folderId.set(initialData.folderId.toString());
+		if (defaultFieldId) {
+			folderId.set(defaultFieldId?.toString() ?? '');
+		} else {
+			folderId.set('');
 		}
 	});
 </script>
@@ -29,11 +33,7 @@
 	</FormGroup>
 	<FormGroup field="folderId" errors={folderId.issues()}>
 		<Label for="folderId">Folder</Label>
-		<FolderSelect
-			name="folderId"
-			id="folderId"
-			initialValue={initialData.folderId ? initialData.folderId.toString() : null}
-		/>
+		<FolderSelect {...folderId.as('select')} />
 	</FormGroup>
 	<Button type="submit" class="mt-4 rounded-none active:scale-95" size="lg">Save</Button>
 	{#if editFeed.result?.success && !editFeed.pending}

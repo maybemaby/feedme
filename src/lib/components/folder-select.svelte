@@ -1,38 +1,42 @@
 <script lang="ts">
+	import { type ComponentProps } from 'svelte';
 	import * as Select from './ui/select';
 	import { getFolders } from '$lib/folders.remote';
 
-	let props: { name?: string; id?: string; initialValue?: string | null } = $props();
+	let {
+		...rest
+	}: { value: string | undefined } & Omit<
+		ComponentProps<typeof Select.Root>,
+		'type' | 'onValueChange' | 'value'
+	> = $props();
 
-	let value = $derived(props.initialValue ?? '');
+	let interimValue = $derived(rest.value ?? '');
+	let { folders } = await getFolders();
 
 	let label = $derived.by(() => {
-		const folder = getFolders().current?.folders.find((f) => f.id.toString() === value);
+		const folder = folders.find((f) => f.id.toString() === interimValue);
 		return folder ? folder.name : 'Select Folder';
 	});
 
-	const folderOptions = $derived.by(async () => {
-		const folders = await getFolders();
-		return folders.folders.map((folder) => ({
+	const folderOptions = $derived.by(() => {
+		return folders.map((folder) => ({
 			...folder,
 			label: folder.folderPath.replaceAll('.', '/')
 		}));
 	});
 </script>
 
-<Select.Root type="single" {...props} bind:value>
+<Select.Root type="single" {...rest} onValueChange={(value) => (interimValue = value)}>
 	<Select.Trigger class="w-[180px]">
 		{label}
 	</Select.Trigger>
 	<Select.Content>
 		<Select.Group>
-			{#await folderOptions then options}
-				{#each options as option (option.id)}
-					<Select.Item value={option.id.toString()}>
-						{option.label}
-					</Select.Item>
-				{/each}
-			{/await}
+			{#each folderOptions as option (option.id)}
+				<Select.Item value={option.id.toString()}>
+					{option.label}
+				</Select.Item>
+			{/each}
 		</Select.Group>
 	</Select.Content>
 </Select.Root>
