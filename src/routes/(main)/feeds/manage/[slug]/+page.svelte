@@ -7,37 +7,36 @@
 
 	let slug = page.params.slug;
 	let prev = page.url.searchParams.get('prev');
+	const { feed } = await loadFeed(slug!);
 </script>
 
 <div>
-	{#each [await loadFeed(slug!)] as { feed } (feed.id)}
-		{#if prev}
-			<a href={prev} class="text-sm">← Back</a>
-		{:else}
-			<a href={resolve('/feeds/manage')} class="text-sm">← Back to Manage Feeds</a>
-		{/if}
+	{#if prev}
+		<a href={prev} class="text-sm">← Back</a>
+	{:else}
+		<a href={resolve('/feeds/manage')} class="text-sm">← Back to Manage Feeds</a>
+	{/if}
 
-		<h1 class="mt-4 text-2xl">{feed.name}</h1>
-		<p class="mb-8 text-sm font-light">
-			Last Refreshed: {feed.refreshedAt?.toLocaleString()}
-		</p>
+	<h1 class="mt-4 text-2xl">{feed.name}</h1>
+	<p class="mb-8 text-sm font-light">
+		Last Refreshed: {feed.refreshedAt?.toLocaleString()}
+	</p>
 
-		<h2 class="mb-4 text-lg">Update Feed Properties</h2>
-		<EditFeed feedSlug={feed.slug} initialData={feed} />
-		<hr class="my-8" />
-		<h2 class="mb-4 text-lg">Danger Zone</h2>
-		<p class="text-destructive">
-			Warning: Deleting the feed will remove all feed items, including the favorited ones.
-		</p>
-		<form {...deleteFeed}>
-			<input type="hidden" name="slug" value={feed.slug} />
-			<Button
-				type="submit"
-				variant="destructive"
-				class="rounded-none active:scale-95"
-				size="lg"
-				disabled={deleteFeed.pending > 0}>Delete Feed</Button
-			>
-		</form>
-	{/each}
+	<h2 class="mb-4 text-lg">Update Feed Properties</h2>
+	<EditFeed feedSlug={feed.slug} initialData={feed} />
+	<hr class="my-8" />
+	<h2 class="mb-4 text-lg">Danger Zone</h2>
+	<p class="text-destructive">
+		Warning: Deleting the feed will remove all feed items, including the favorited ones.
+	</p>
+	<form {...deleteFeed}>
+		<input type="hidden" name="slug" value={feed.slug} />
+		<Button
+			type="submit"
+			variant="destructive"
+			class="rounded-none active:scale-95"
+			size="lg"
+			disabled={deleteFeed.pending > 0}>Delete Feed</Button
+		>
+	</form>
 </div>
