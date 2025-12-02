@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { uniqueIndex, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
 import { int, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
@@ -129,3 +130,18 @@ export const feedTags = sqliteTable('feed_tags', {
 		.notNull()
 		.references(() => tags.id, bothCascade)
 });
+
+export const readLater = sqliteTable(
+	'read_later',
+	{
+		id: int('id').primaryKey(),
+		itemId: int('item_id').references(() => feedItems.id, bothCascade),
+		userId: text('user_id').references(() => user.id, bothCascade),
+		addedAt: integer('added_at', { mode: 'timestamp' })
+			.notNull()
+			.$default(() => sql`CURRENT_TIMESTAMP`)
+	},
+	(t) => {
+		return [uniqueIndex('user_item_idx').on(t.userId, t.itemId)];
+	}
+);
