@@ -156,9 +156,6 @@ export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
 		.where(
 			and(
 				params?.userId ? eq(feeds.userId, params.userId) : undefined,
-				params?.userId
-					? or(isNull(readLater.userId), eq(readLater.userId, params.userId))
-					: undefined,
 				or(
 					params?.feedId ? eq(feedItems.feedId, params.feedId) : undefined,
 					params?.slug ? eq(feeds.slug, params.slug) : undefined
@@ -167,7 +164,7 @@ export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
 		)
 		.orderBy(desc(feedItems.publishedAt))
 		.offset((page - 1) * 20)
-		.limit(page * 20);
+		.limit(20);
 }
 
 export function countFeedItemsBuilder(params: Omit<FindFeedItemsParams, 'page'>) {
@@ -177,12 +174,13 @@ export function countFeedItemsBuilder(params: Omit<FindFeedItemsParams, 'page'>)
 		})
 		.from(feedItems)
 		.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
+		.leftJoin(readLater, eq(readLater.itemId, feedItems.id))
 		.where(
 			and(
 				params.userId ? eq(feeds.userId, params.userId) : undefined,
 				or(
-					params.feedId ? eq(feedItems.feedId, params.feedId) : undefined,
-					params.slug ? eq(feeds.slug, params.slug) : undefined
+					params?.feedId ? eq(feedItems.feedId, params.feedId) : undefined,
+					params?.slug ? eq(feeds.slug, params.slug) : undefined
 				)
 			)
 		);
