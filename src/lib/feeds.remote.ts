@@ -65,7 +65,7 @@ export const addFeed = form(addFeedSchema, async ({ url }) => {
 		content: item.description ?? ''
 	}));
 
-	await upsertFeedItems(upsertData);
+	await locals.services.feedService.upsertFeedItems(upsertData);
 
 	return {
 		feed: insertedFeed

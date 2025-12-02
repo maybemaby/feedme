@@ -12,6 +12,7 @@
 		content: string;
 		publishedAt: Date;
 		createdAt: Date;
+		readLater: number | null;
 	};
 
 	let {
@@ -43,7 +44,7 @@
 			<div class="mb-8 border-b">
 				<p class="font-mono text-xl">{date}</p>
 				{#each items as item (item.id)}
-					<FeedLink {item} />
+					<FeedLink {item} inReadLater={item.readLater !== null} />
 				{/each}
 			</div>
 		{/each}

@@ -6,7 +6,6 @@ import { getDb } from '$lib/server/db/db';
 import { feeds, type InsertFeedItem } from '$lib/server/db/sqlite-schema';
 import { randomUUID } from 'node:crypto';
 import { slugify } from '$lib/utils';
-import { upsertFeedItems } from '$lib/server/feeds-service';
 import { eq } from 'drizzle-orm';
 
 const addFeedSchema = z.object({
@@ -69,7 +68,7 @@ export const POST: RequestHandler = async (event) => {
 		content: item.description ?? ''
 	}));
 
-	await upsertFeedItems(upsertData);
+	await event.locals.services.feedService.upsertFeedItems(upsertData);
 
 	return json({ feed: insertedFeed });
 };

@@ -6,7 +6,6 @@ import { and, eq, inArray, isNull, lte, or } from 'drizzle-orm';
 import { getFeedContent, parseFeedContent } from '$lib/server/feeds';
 import type { Ok } from 'neverthrow';
 import type { OKResult } from '$lib/utils';
-import { upsertFeedItems } from '$lib/server/feeds-service';
 
 export const POST: RequestHandler = async (event) => {
 	const userId = event.locals.session?.user.id;
@@ -107,7 +106,7 @@ export const POST: RequestHandler = async (event) => {
 		}));
 	});
 
-	await upsertFeedItems(feedData);
+	await event.locals.services.feedService.upsertFeedItems(feedData);
 
 	await getDb()
 		.update(feeds)

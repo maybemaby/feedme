@@ -5,6 +5,7 @@ import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 import { auth } from '$lib/server/auth';
 import { building } from '$app/environment';
+import { feedItemService, feedService } from '$lib/feeds/queries';
 
 process.title = 'feedme';
 
@@ -34,8 +35,17 @@ const vital = vitalHooks({
 	})
 });
 
+const handleServices: Handle = async ({ event, resolve }) => {
+	event.locals.services = {
+		feedItemService,
+		feedService
+	};
+
+	return resolve(event);
+};
+
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
 	event.locals.logger.error({ error, message, status }, 'Unhandled error in SvelteKit');
 };
 
-export const handle = sequence(vital, betterAuth, sessionHandle);
+export const handle = sequence(handleServices, vital, betterAuth, sessionHandle);

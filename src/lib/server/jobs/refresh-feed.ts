@@ -4,9 +4,9 @@ import { type Logger } from 'pino';
 import { getDb } from '../db/db';
 import { feeds } from '../db/sqlite-schema';
 import { getFeedContent, parseFeedContent } from '../feeds';
-import { upsertFeedItems } from '../feeds-service';
+import type { FeedService } from '$lib/feeds/queries';
 
-export async function refreshFeed(feedId: string, logger?: Logger) {
+export async function refreshFeed(feedId: string, feedService: FeedService, logger?: Logger) {
 	const [feed] = await getDb().select().from(feeds).where(eq(feeds.id, feedId));
 
 	if (!feed) {
@@ -41,7 +41,7 @@ export async function refreshFeed(feedId: string, logger?: Logger) {
 	}));
 
 	try {
-		await upsertFeedItems(feedItems);
+		await feedService.upsertFeedItems(feedItems);
 
 		await getDb().update(feeds).set({ refreshedAt: new Date() }).where(eq(feeds.id, feed.id));
 		return ok({ feed, newItems: feedItems.length });
