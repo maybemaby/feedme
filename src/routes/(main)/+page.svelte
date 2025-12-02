@@ -4,15 +4,23 @@
 	import { goto } from '$app/navigation';
 	import FeedView from '$lib/components/feed-view.svelte';
 	import { PersistedState } from 'runed';
+	import { getFeedItems } from '$lib/feeds/feed-items.remote.js';
+	import { page } from '$app/state';
 
-	const { data } = $props();
+	let currentPage = $derived.by(() => {
+		const p = page.url.searchParams.get('p');
+		const parsed = p ? parseInt(p) : 1;
+		return isNaN(parsed) || parsed < 1 ? 1 : parsed;
+	});
 
 	// State for view mode
 	let viewMode = new PersistedState('feedViewMode', 'list' as 'list' | 'grid');
 
-	const navigatePage = (page: number) => {
-		goto(`/?p=${page}`);
+	const navigatePage = (toPage: number) => {
+		goto(`/?p=${toPage}`);
 	};
+
+	const feedRes = $derived(getFeedItems({ page: currentPage }));
 </script>
 
 <div class="flex flex-col">
@@ -54,30 +62,39 @@
 		</div>
 	</div>
 
-	<FeedView feedItems={data.feedItems} viewMode={viewMode.current} />
-	<Pagination.Root count={data.feedCount} perPage={20} page={data.page} onPageChange={navigatePage}>
-		{#snippet children({ pages, currentPage })}
-			<Pagination.Content>
-				<Pagination.Item>
-					<Pagination.PrevButton />
-				</Pagination.Item>
-				{#each pages as page (page.key)}
-					{#if page.type === 'ellipsis'}
-						<Pagination.Item>
-							<Pagination.Ellipsis />
-						</Pagination.Item>
-					{:else}
-						<Pagination.Item>
-							<Pagination.Link {page} isActive={currentPage === page.value}>
-								{page.value}
-							</Pagination.Link>
-						</Pagination.Item>
-					{/if}
-				{/each}
-				<Pagination.Item>
-					<Pagination.NextButton />
-				</Pagination.Item>
-			</Pagination.Content>
-		{/snippet}
-	</Pagination.Root>
+	{#if feedRes.current}
+		<FeedView feedItems={feedRes.current.feedItems} viewMode={viewMode.current} />
+		<Pagination.Root
+			count={feedRes.current.count}
+			perPage={20}
+			page={currentPage}
+			onPageChange={navigatePage}
+		>
+			{#snippet children({ pages, currentPage })}
+				<Pagination.Content>
+					<Pagination.Item>
+						<Pagination.PrevButton />
+					</Pagination.Item>
+					{#each pages as page (page.key)}
+						{#if page.type === 'ellipsis'}
+							<Pagination.Item>
+								<Pagination.Ellipsis />
+							</Pagination.Item>
+						{:else}
+							<Pagination.Item>
+								<Pagination.Link {page} isActive={currentPage === page.value}>
+									{page.value}
+								</Pagination.Link>
+							</Pagination.Item>
+						{/if}
+					{/each}
+					<Pagination.Item>
+						<Pagination.NextButton />
+					</Pagination.Item>
+				</Pagination.Content>
+			{/snippet}
+		</Pagination.Root>
+	{:else if feedRes.error}
+		<p class="text-destructive">Error loading feed items</p>
+	{:else}{/if}
 </div>
