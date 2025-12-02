@@ -6,7 +6,7 @@
 
 	import EditFeed from '../../routes/(main)/feeds/manage/[slug]/edit-feed.svelte';
 	import { resolve } from '$app/paths';
-	import { addFeed } from '$lib/feeds.remote';
+	import { addFeed } from '$lib/feeds/feeds.remote';
 	import { invalidateAll } from '$app/navigation';
 </script>
 
