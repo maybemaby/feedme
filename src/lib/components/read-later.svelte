@@ -12,7 +12,7 @@
 		isMarked?: boolean;
 	} = $props();
 
-	let marked = $derived(isMarked);
+	let marked = $state(isMarked);
 
 	let msg = $derived.by(() => (marked ? 'Remove' : 'Read Later'));
 </script>
