@@ -5,9 +5,13 @@ import { Ok, ok } from 'neverthrow';
 import { getFeedContent, parseFeedContent } from './feeds';
 import type { Logger } from 'pino';
 import type { OKResult } from '$lib/utils';
-import { upsertFeedItems } from './feeds-service';
+import type { FeedService } from '$lib/feeds/queries';
 
-export async function refreshFeedsForUser(userId: string, logger?: Logger) {
+export async function refreshFeedsForUser(
+	userId: string,
+	feedService: FeedService,
+	logger?: Logger
+) {
 	const feedsRes = await getDb()
 		.select()
 		.from(feeds)
@@ -94,7 +98,7 @@ export async function refreshFeedsForUser(userId: string, logger?: Logger) {
 		}));
 	});
 
-	await upsertFeedItems(feedData);
+	await feedService.upsertFeedItems(feedData);
 
 	await getDb()
 		.update(feeds)

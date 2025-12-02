@@ -9,6 +9,10 @@ declare global {
 			session: typeof auth.$Infer.Session | null;
 			logger: import('pino').Logger;
 			reqId: string;
+			services: {
+				feedItemService: import('$lib/feeds/queries').FeedItemService;
+				feedService: import('$lib/feeds/queries').FeedService;
+			};
 		}
 		// interface PageData {}
 		// interface PageState {}

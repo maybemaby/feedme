@@ -1,7 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
-import { countFeedItemsBuilder, findFeedItemsBuilder } from '$lib/server/feeds-service';
+
 import { getDb } from '$lib/server/db/db';
+import { countFeedItemsBuilder, findFeedItemsBuilder } from '$lib/feeds/queries';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const userId = locals.session?.user.id;
