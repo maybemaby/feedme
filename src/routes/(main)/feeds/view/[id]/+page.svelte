@@ -19,23 +19,12 @@
 		goto(resolve(`/feeds/view/${params.id}?p=${page}`));
 	};
 
-	let data = $derived(
-		await findFeedItemsWithCount({
-			feedId: params.id,
-			slug: params.id,
-			page: pageParsed
-		})
-	);
-
-	let itemCount = $derived(data[0].totalCount ? data[0].totalCount : 0);
-
-	const feedName = $derived(data[0]?.feedName);
-	const feedSlug = $derived(data[0]?.feedSlug);
-	const feedUrl = $derived(data[0]?.feedUrl);
+	const feedName = $derived(data.feedItems[0]?.feedName);
+	const feedSlug = $derived(data.feedItems[0]?.feedSlug);
 </script>
 
 {#snippet paginator(count: number)}
-	<Pagination.Root {count} perPage={20} page={pageParsed} onPageChange={navigatePage}>
+	<Pagination.Root {count} perPage={20} page={data.page} onPageChange={navigatePage}>
 		{#snippet children({ pages, currentPage })}
 			<Pagination.Content>
 				<Pagination.Item>
@@ -73,7 +62,7 @@
 		size="icon"
 		variant="outline"
 		href={resolve(
-			`/feeds/manage/${feedSlug}?prev=${encodeURIComponent(`/feeds/view/${data.feedId}`)}`
+			`/feeds/manage/${feedSlug}?prev=${encodeURIComponent(`/feeds/view/${params.id}`)}`
 		)}
 	>
 		<Settings />
@@ -81,14 +70,14 @@
 </div>
 
 <div class="py-4">
-	{#each data as item (item.id)}
+	{#each data.feedItems as item (item.id)}
 		<FeedLink {item} showFeedName={false} showPublishDate />
 	{:else}
 		<p>No items found for this feed.</p>
 	{/each}
 </div>
 <div class="flex flex-col">
-	{#await itemCount}
+	{#await data.itemCount}
 		{@render paginator(0)}
 	{:then count}
 		{@render paginator(count)}

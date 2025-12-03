@@ -39,6 +39,13 @@ export const feedItemService: FeedItemService = {
 	}
 };
 
+interface FindFeedItemsParams {
+	feedId?: string;
+	userId?: string;
+	page?: number;
+	slug?: string;
+}
+
 interface FeedItemsResults {
 	id: number;
 	feedId: string;
