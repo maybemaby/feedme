@@ -135,8 +135,12 @@ export const readLater = sqliteTable(
 	'read_later',
 	{
 		id: int('id').primaryKey(),
-		itemId: int('item_id').references(() => feedItems.id, bothCascade),
-		userId: text('user_id').references(() => user.id, bothCascade),
+		itemId: int('item_id')
+			.references(() => feedItems.id, bothCascade)
+			.notNull(),
+		userId: text('user_id')
+			.references(() => user.id, bothCascade)
+			.notNull(),
 		addedAt: integer('added_at', { mode: 'timestamp' })
 			.notNull()
 			.$default(() => sql`CURRENT_TIMESTAMP`)
@@ -145,3 +149,5 @@ export const readLater = sqliteTable(
 		return [uniqueIndex('user_item_idx').on(t.userId, t.itemId)];
 	}
 );
+
+export type ReadLaterSelect = typeof readLater.$inferSelect;

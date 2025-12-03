@@ -1,18 +1,19 @@
 <script lang="ts">
+	import { getReadLaterStatus } from '$lib/feeds/feed-items.remote';
 	import type { FeedItem } from '$lib/server/db/sqlite-schema';
 	import ReadLater from './read-later.svelte';
 
 	let {
 		item,
 		showFeedName = true,
-		showPublishDate = false,
-		inReadLater
+		showPublishDate = false
 	}: {
 		item: FeedItem & { feedName: string };
 		showFeedName?: boolean;
 		showPublishDate?: boolean;
-		inReadLater?: boolean;
 	} = $props();
+
+	const readLater = await getReadLaterStatus(item.id);
 </script>
 
 <article class="py-2">
@@ -34,6 +35,6 @@
 	</div>
 
 	<div class="mt-2 flex items-center gap-4 text-sm">
-		<ReadLater itemId={item.id} isMarked={inReadLater} />
+		<ReadLater itemId={item.id} isMarked={readLater} />
 	</div>
 </article>

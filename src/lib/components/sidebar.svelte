@@ -1,11 +1,15 @@
 <script lang="ts">
-	import { Inbox, ChevronUp, Plus } from '@lucide/svelte';
+	import Inbox from '@lucide/svelte/icons/inbox';
+	import ChevronUp from '@lucide/svelte/icons/chevron-up';
+	import Plus from '@lucide/svelte/icons/plus';
+	import Bookmark from '@lucide/svelte/icons/bookmark';
 	import { Button, buttonVariants } from './ui/button/index';
 	import FolderTree, { type FolderTreeNode } from './folder-tree.svelte';
 	import AddFolder from './add-folder.svelte';
 	import * as Collapsible from './ui/collapsible/index';
 	import { goto } from '$app/navigation';
 	import { getFolderTreeState } from '$lib/state/folderTree.svelte';
+	import { resolve } from '$app/paths';
 
 	let { folderNodes }: { folderNodes?: FolderTreeNode[] } = $props();
 	let foldersOpen = $state(true);
@@ -27,18 +31,17 @@
 	};
 </script>
 
-<div class="p-4">
-	<a
-		href="/"
-		class="bg-primary text-primary-foreground mb-4 flex items-center justify-center gap-2 border p-2"
-	>
-		<Inbox size={20} /> All Feeds</a
-	>
+<div class="h-full p-4">
+	<a href="/" class="mb-2 flex items-center gap-2"> <Inbox size={20} /> All Feeds</a>
+	<a class="mb-4 inline-flex items-center gap-2" href={resolve('/read-later')}
+		><Bookmark size={20} /> Read Later
+	</a>
 	<Button
 		variant="secondary"
 		href="/feeds/manage"
-		class="border-foreground w-full rounded-none border shadow-none">Manage Feeds</Button
-	>
+		class="w-full justify-start rounded-none border shadow-none"
+		>Manage Feeds
+	</Button>
 
 	<div class="my-8">
 		<Collapsible.Root bind:open={foldersOpen}>

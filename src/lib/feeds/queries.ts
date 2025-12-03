@@ -2,16 +2,32 @@ import { ResultAsync } from 'neverthrow';
 import { LibsqlError, type ResultSet } from '@libsql/client';
 import { DbError } from '../server/db/errors';
 import { getDb } from '../server/db/db';
-import { feedItems, feeds, readLater, type InsertFeedItem } from '../server/db/sqlite-schema';
-import { and, count, desc, eq, getTableColumns, isNull, or, sql } from 'drizzle-orm';
+import {
+	feedItems,
+	feeds,
+	readLater,
+	type InsertFeedItem,
+	type FeedItem
+} from '../server/db/sqlite-schema';
+import { and, count, desc, eq, getTableColumns, inArray, isNull, or, sql } from 'drizzle-orm';
 import type { FindFeedItemsParams } from '$lib/schema';
 
+type ReadLaterItem = FeedItem & {
+	feedName: string;
+	feedSlug: string;
+};
+
 export interface FeedItemService {
-	readonly markReadLater: (itemId: number, userId: string) => ResultAsync<void, DbError>;
+	readonly markReadLater: (itemId: number, userId: string) => ResultAsync<boolean, DbError>;
+	readonly getReadLaterStatus: (
+		itemIds: number[],
+		userId: string
+	) => ResultAsync<Record<number, boolean>, DbError>;
+	getReadLaterItems: (userId: string) => Promise<ReadLaterItem[]>;
 }
 
 export const feedItemService: FeedItemService = {
-	markReadLater: function (itemId: number, userId: string): ResultAsync<void, DbError> {
+	markReadLater: function (itemId: number, userId: string): ResultAsync<boolean, DbError> {
 		return ResultAsync.fromPromise(
 			(async () => {
 				const db = getDb();
@@ -23,10 +39,13 @@ export const feedItemService: FeedItemService = {
 
 				if (!exisitingMark) {
 					await db.insert(readLater).values({ itemId, userId });
+
+					return true;
 				} else {
 					await db
 						.delete(readLater)
 						.where(and(eq(readLater.itemId, itemId), eq(readLater.userId, userId)));
+					return false;
 				}
 			})(),
 			(e) => {
@@ -36,6 +55,41 @@ export const feedItemService: FeedItemService = {
 				return new DbError('Failed to update read later', { originalError: e });
 			}
 		);
+	},
+	getReadLaterStatus: function (
+		itemIds: number[],
+		userId: string
+	): ResultAsync<Record<number, boolean>, DbError> {
+		return ResultAsync.fromPromise(
+			(async () => {
+				const readLaters = await getDb()
+					.select()
+					.from(readLater)
+					.where(and(inArray(readLater.itemId, itemIds), eq(readLater.userId, userId)));
+
+				const statusMap: Record<number, boolean> = {};
+
+				for (const id of itemIds) {
+					statusMap[id] = false;
+				}
+
+				for (const readLater of readLaters) {
+					statusMap[readLater.itemId] = true;
+				}
+
+				return statusMap;
+			})(),
+			(e) => new DbError('Failed to get read later status', { originalError: e })
+		);
+	},
+	getReadLaterItems: function (userId: string): Promise<ReadLaterItem[]> {
+		return getDb()
+			.select({ ...getTableColumns(feedItems), feedName: feeds.name, feedSlug: feeds.slug })
+			.from(feedItems)
+			.innerJoin(readLater, eq(readLater.itemId, feedItems.id))
+			.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
+			.where(eq(readLater.userId, userId))
+			.orderBy(desc(readLater.addedAt));
 	}
 };
 
