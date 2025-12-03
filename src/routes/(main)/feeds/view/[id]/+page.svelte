@@ -15,12 +15,37 @@
 
 	let { params }: PageProps = $props();
 
+	let currentPage = $derived.by(() => {
+		const pageParam = page.url.searchParams.get('p') ?? '1';
+
+		const parsed = parseInt(pageParam, 10);
+		return isNaN(parsed) || parsed < 1 ? 1 : parsed;
+	});
+
+	let feedPromise = $derived(
+		findFeedItems({
+			page: currentPage,
+			feedId: params.id,
+			slug: params.id
+		})
+	);
+
+	let countPromise = $derived(
+		countFeedItems({
+			feedId: params.id,
+			slug: params.id
+		})
+	);
+
+	let feedRes = $derived(await feedPromise);
+	let { count } = $derived(await countPromise);
+
 	const navigatePage = (page: number) => {
 		goto(resolve(`/feeds/view/${params.id}?p=${page}`));
 	};
 
-	const feedName = $derived(data.feedItems[0]?.feedName);
-	const feedSlug = $derived(data.feedItems[0]?.feedSlug);
+	const feedName = $derived(feedRes?.[0]?.feedName);
+	const feedSlug = $derived(feedRes?.[0]?.feedSlug);
 </script>
 
 {#snippet paginator(count: number)}
@@ -70,12 +95,13 @@
 </div>
 
 <div class="py-4">
-	{#each data.feedItems as item (item.id)}
+	{#each feedRes as item (item.id)}
 		<FeedLink {item} showFeedName={false} showPublishDate />
 	{:else}
 		<p>No items found for this feed.</p>
 	{/each}
 </div>
+
 <div class="flex flex-col">
 	{#await data.itemCount}
 		{@render paginator(0)}

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { toggleReadLater } from '$lib/feeds/feed-items.remote';
+	import { getReadLaterStatus, toggleReadLater } from '$lib/feeds/feed-items.remote';
+	import { tick } from 'svelte';
 	import { Button } from './ui/button';
 	import BookMark from '@lucide/svelte/icons/bookmark';
 	import X from '@lucide/svelte/icons/bookmark-x';
@@ -12,7 +13,7 @@
 		isMarked?: boolean;
 	} = $props();
 
-	let marked = $state(isMarked);
+	let marked = $derived(isMarked);
 
 	let msg = $derived.by(() => (marked ? 'Remove' : 'Read Later'));
 </script>
@@ -20,8 +21,10 @@
 <form
 	{...toggleReadLater.for(itemId).enhance(async ({ submit }) => {
 		marked = !marked;
+		await tick();
 
 		try {
+			console.log('Submitting form to toggle read later status');
 			await submit();
 		} catch (e) {
 			console.error('Failed to submit form', e);

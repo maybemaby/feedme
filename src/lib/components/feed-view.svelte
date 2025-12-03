@@ -44,7 +44,7 @@
 			<div class="mb-8 border-b">
 				<p class="font-mono text-xl">{date}</p>
 				{#each items as item (item.id)}
-					<FeedLink {item} inReadLater={item.readLater !== null} />
+					<FeedLink {item} />
 				{/each}
 			</div>
 		{/each}
