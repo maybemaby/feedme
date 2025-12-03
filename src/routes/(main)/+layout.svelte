@@ -23,8 +23,8 @@
 	const handleFocus = () => {
 		const currentTime = Date.now();
 
-		if (currentTime - latestFocusFetch.getDate() < 5000) {
-			// If the last focus was less than 5 seconds ago, do nothing
+		if (currentTime - latestFocusFetch.getTime() < 20_000) {
+			// If the last focus was less than 20 seconds ago, do nothing
 			return;
 		}
 
