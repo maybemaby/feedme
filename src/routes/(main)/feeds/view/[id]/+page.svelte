@@ -6,20 +6,36 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Pagination from '$lib/components/ui/pagination';
 	import type { PageProps } from './$types';
+	import { findFeedItemsWithCount } from '$lib/feeds.remote';
+	import { page } from '$app/state';
 
-	let { data }: PageProps = $props();
+	let pageNum = $derived(page.url.searchParams.get('p'));
+
+	let pageParsed = $derived(pageNum ? parseInt(pageNum) : 1);
+
+	let { params }: PageProps = $props();
 
 	const navigatePage = (page: number) => {
-		goto(resolve(`/feeds/view/${data.feedId}?p=${page}`));
+		goto(resolve(`/feeds/view/${params.id}?p=${page}`));
 	};
 
-	const feedName = $derived(data.feedItems[0]?.feedName);
-	const feedSlug = $derived(data.feedItems[0]?.feedSlug);
-	const feedUrl = $derived(data.feedItems[0]?.feedUrl);
+	let data = $derived(
+		await findFeedItemsWithCount({
+			feedId: params.id,
+			slug: params.id,
+			page: pageParsed
+		})
+	);
+
+	let itemCount = $derived(data[0].totalCount ? data[0].totalCount : 0);
+
+	const feedName = $derived(data[0]?.feedName);
+	const feedSlug = $derived(data[0]?.feedSlug);
+	const feedUrl = $derived(data[0]?.feedUrl);
 </script>
 
 {#snippet paginator(count: number)}
-	<Pagination.Root {count} perPage={20} page={data.page} onPageChange={navigatePage}>
+	<Pagination.Root {count} perPage={20} page={pageParsed} onPageChange={navigatePage}>
 		{#snippet children({ pages, currentPage })}
 			<Pagination.Content>
 				<Pagination.Item>
@@ -65,14 +81,14 @@
 </div>
 
 <div class="py-4">
-	{#each data.feedItems as item (item.id)}
+	{#each data as item (item.id)}
 		<FeedLink {item} showFeedName={false} showPublishDate />
 	{:else}
 		<p>No items found for this feed.</p>
 	{/each}
 </div>
 <div class="flex flex-col">
-	{#await data.itemCount}
+	{#await itemCount}
 		{@render paginator(0)}
 	{:then count}
 		{@render paginator(count)}
