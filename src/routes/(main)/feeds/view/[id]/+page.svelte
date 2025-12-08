@@ -15,6 +15,7 @@
 
 	const feedName = $derived(data.feedItems[0]?.feedName);
 	const feedSlug = $derived(data.feedItems[0]?.feedSlug);
+	const feedUrl = $derived(data.feedItems[0]?.feedUrl);
 </script>
 
 {#snippet paginator(count: number)}
@@ -45,8 +46,13 @@
 	</Pagination.Root>
 {/snippet}
 
-<div class="flex items-center justify-between gap-4">
-	<h1 class="text-xl font-bold">{feedName}</h1>
+<div class="flex items-start justify-between gap-4">
+	<div>
+		<h1 class="mb-1 text-xl font-bold">{feedName}</h1>
+		<a href={feedUrl} target="_blank" class="underline">
+			{feedUrl}
+		</a>
+	</div>
 	<Button
 		size="icon"
 		variant="outline"

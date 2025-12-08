@@ -24,8 +24,44 @@ interface FindFeedItemsParams {
 	slug?: string;
 }
 
-export async function findFeedItems(params?: FindFeedItemsParams) {
-	return await findFeedItemsBuilder(params);
+export async function findFeedItemsWithCount(params?: FindFeedItemsParams) {
+	const page = params?.page || 1;
+
+	const filterQuery = getDb()
+		.$with('filteredFeedItems')
+		.as(
+			getDb()
+				.select({
+					...getTableColumns(feedItems),
+					feedSlug: feeds.slug,
+					feedName: feeds.name,
+					feedUrl: feeds.url
+				})
+				.from(feedItems)
+				.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
+				.where(
+					and(
+						params?.userId ? eq(feeds.userId, params.userId) : undefined,
+						or(
+							params?.feedId ? eq(feedItems.feedId, params.feedId) : undefined,
+							params?.slug ? eq(feeds.slug, params.slug) : undefined
+						)
+					)
+				)
+		);
+
+	const res = await getDb()
+		.with(filterQuery)
+		.select({
+			totalCount: sql<number>`CAST(COUNT(*) OVER () AS INT)`,
+			...filterQuery._.selectedFields
+		})
+		.from(filterQuery)
+		.orderBy(desc(filterQuery.publishedAt))
+		.limit(20)
+		.offset((page - 1) * 20);
+
+	return res;
 }
 
 // For use in batched calls
@@ -35,7 +71,8 @@ export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
 		.select({
 			...getTableColumns(feedItems),
 			feedSlug: feeds.slug,
-			feedName: feeds.name
+			feedName: feeds.name,
+			feedUrl: feeds.url
 		})
 		.from(feedItems)
 		.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
@@ -51,12 +88,6 @@ export function findFeedItemsBuilder(params?: FindFeedItemsParams) {
 		.orderBy(desc(feedItems.publishedAt))
 		.offset((page - 1) * 20)
 		.limit(page * 20);
-}
-
-export async function countFeedItems(params: Omit<FindFeedItemsParams, 'page'>) {
-	const [feedCount] = await countFeedItemsBuilder(params);
-
-	return feedCount.count;
 }
 
 export function countFeedItemsBuilder(params: Omit<FindFeedItemsParams, 'page'>) {
