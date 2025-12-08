@@ -13,7 +13,9 @@
 		showPublishDate?: boolean;
 	} = $props();
 
-	const readLater = await getReadLaterStatus(item.id);
+	let readLaterPromise = getReadLaterStatus(item.id);
+
+	let readLater = $derived(await readLaterPromise);
 </script>
 
 <article class="py-2">

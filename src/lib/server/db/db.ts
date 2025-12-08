@@ -18,7 +18,7 @@ const logger: Logger = {
 function createDb() {
 	return drizzle({
 		schema,
-		logger: process.env.NODE_ENV === 'development' ? logger : false,
+		// logger: process.env.NODE_ENV === 'development' ? logger : false,
 		connection: {
 			url: env.DATABASE_URL
 		}

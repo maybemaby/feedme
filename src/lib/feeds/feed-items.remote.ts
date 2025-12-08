@@ -1,7 +1,7 @@
-import { form, getRequestEvent, query } from '$app/server';
+import { command, getRequestEvent, query } from '$app/server';
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
-import { countFeedItemsBuilder, findFeedItemsBuilder, findFeedItemsParamsSchema } from './queries';
+import { countFeedItemsBuilder, findFeedItemsBuilder } from './queries';
 import { getDb } from '$lib/server/db/db';
 
 const getFeedItemsParamSchema = z.object({
@@ -29,10 +29,11 @@ export const getFeedItems = query(getFeedItemsParamSchema, async (data) => {
 });
 
 const readLaterParamSchema = z.object({
-	itemId: z.number().int().positive()
+	itemId: z.number().int().positive(),
+	readLater: z.boolean()
 });
 
-export const toggleReadLater = form(readLaterParamSchema, async (data) => {
+export const toggleReadLater = command(readLaterParamSchema, async (data) => {
 	const { locals } = getRequestEvent();
 
 	const userId = locals.session?.user.id;
@@ -41,13 +42,21 @@ export const toggleReadLater = form(readLaterParamSchema, async (data) => {
 		error(401, 'Unauthorized');
 	}
 
-	const res = await locals.services.feedItemService.markReadLater(data.itemId, userId);
+	const res = await locals.services.feedItemService.markReadLater(
+		data.itemId,
+		userId,
+		data.readLater
+	);
 
 	if (res.isErr()) {
 		locals.logger.error({ error: res.error }, 'Failed to toggle read later');
 		throw error(500, 'Failed to toggle read later');
 	} else {
-		await getReadLaterStatus(data.itemId).set(res.value);
+		locals.logger.debug(
+			`Toggled read later for item ${data.itemId} to ${res.value} for user ${userId}`
+		);
+
+		getReadLaterStatus(data.itemId).set(res.value);
 
 		return {
 			message: 'Toggled read later successfully',
@@ -86,30 +95,3 @@ export const getReadLaterItems = query(async () => {
 
 	return locals.services.feedItemService.getReadLaterItems(userId);
 });
-
-export const findFeedItems = query(findFeedItemsParamsSchema, async (data) => {
-	const { locals } = getRequestEvent();
-
-	const userId = locals.session?.user.id;
-
-	if (!userId) {
-		throw error(401, 'Unauthorized');
-	}
-
-	return await locals.services.feedService.findFeedItems({ ...data, userId });
-});
-
-export const countFeedItems = query(
-	findFeedItemsParamsSchema.omit({ page: true }),
-	async (data) => {
-		const { locals } = getRequestEvent();
-
-		const userId = locals.session?.user.id;
-
-		if (!userId) {
-			throw error(401, 'Unauthorized');
-		}
-
-		return await locals.services.feedService.countFeedItems({ ...data, userId });
-	}
-);
