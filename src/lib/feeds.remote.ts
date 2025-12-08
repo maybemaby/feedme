@@ -1,4 +1,4 @@
-import { form, getRequestEvent } from '$app/server';
+import { form, getRequestEvent, query } from '$app/server';
 import { error } from '@sveltejs/kit';
 import * as z from 'zod';
 import { getFeedContent, parseFeedContent } from './server/feeds';
@@ -6,7 +6,8 @@ import { slugify } from './utils';
 import { randomUUID } from 'crypto';
 import { getDb } from './server/db/db';
 import { feeds, type InsertFeedItem } from './server/db/sqlite-schema';
-import { upsertFeedItems } from './server/feeds-service';
+import { upsertFeedItems, findFeedItemsWithCount as findItemsQuery } from './server/feeds-service';
+import { findFeedItemsSchema } from './schema';
 
 const addFeedSchema = z.object({
 	url: z.url()
@@ -70,3 +71,20 @@ export const addFeed = form(addFeedSchema, async ({ url }) => {
 		feed: insertedFeed
 	};
 });
+
+export const findFeedItemsWithCount = query(
+	findFeedItemsSchema.omit({
+		userId: true
+	}),
+	async (params) => {
+		const { locals } = getRequestEvent();
+
+		const userId = locals.session?.user.id;
+
+		if (!userId) {
+			throw error(401, 'Unauthorized');
+		}
+
+		return await findItemsQuery({ ...params, userId });
+	}
+);

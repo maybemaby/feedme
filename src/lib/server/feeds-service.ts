@@ -1,6 +1,7 @@
 import { getTableColumns, sql, eq, desc, and, count, or } from 'drizzle-orm';
 import { getDb } from './db/db';
 import { feedItems, feeds, type InsertFeedItem } from './db/sqlite-schema';
+import type { FindFeedItemsParams } from '$lib/schema';
 
 export async function upsertFeedItems(data: InsertFeedItem[]) {
 	return await getDb()
@@ -15,13 +16,6 @@ export async function upsertFeedItems(data: InsertFeedItem[]) {
 				url: sql.raw(`excluded.${feedItems.url.name}`)
 			}
 		});
-}
-
-interface FindFeedItemsParams {
-	feedId?: string;
-	userId?: string;
-	page?: number;
-	slug?: string;
 }
 
 export async function findFeedItemsWithCount(params?: FindFeedItemsParams) {
