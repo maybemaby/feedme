@@ -6,6 +6,7 @@ import { slugify } from '../utils';
 import { randomUUID } from 'crypto';
 import { getDb } from '../server/db/db';
 import { feeds, type InsertFeedItem } from '../server/db/sqlite-schema';
+import { findFeedItemsSchema } from '$lib/schema';
 
 const addFeedSchema = z.object({
 	url: z.url()
@@ -83,6 +84,6 @@ export const findFeedItemsWithCount = query(
 			throw error(401, 'Unauthorized');
 		}
 
-		return await findItemsQuery({ ...params, userId });
+		return await locals.services.feedService.findFeedItemsWithCount({ ...params, userId });
 	}
 );

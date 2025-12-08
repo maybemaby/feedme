@@ -6,8 +6,9 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Pagination from '$lib/components/ui/pagination';
 	import type { PageProps } from './$types';
-	import { findFeedItemsWithCount } from '$lib/feeds.remote';
 	import { page } from '$app/state';
+
+	import { findFeedItemsWithCount } from '$lib/feeds/feeds.remote';
 
 	let pageNum = $derived(page.url.searchParams.get('p'));
 
@@ -15,41 +16,27 @@
 
 	let { params }: PageProps = $props();
 
-	let currentPage = $derived.by(() => {
-		const pageParam = page.url.searchParams.get('p') ?? '1';
-
-		const parsed = parseInt(pageParam, 10);
-		return isNaN(parsed) || parsed < 1 ? 1 : parsed;
-	});
-
-	let feedPromise = $derived(
-		findFeedItems({
-			page: currentPage,
+	let data = $derived(
+		await findFeedItemsWithCount({
+			page: pageParsed,
 			feedId: params.id,
 			slug: params.id
 		})
 	);
 
-	let countPromise = $derived(
-		countFeedItems({
-			feedId: params.id,
-			slug: params.id
-		})
-	);
-
-	let feedRes = $derived(await feedPromise);
-	let { count } = $derived(await countPromise);
+	let count = $derived(data[0].totalCount ? data[0].totalCount : 0);
 
 	const navigatePage = (page: number) => {
 		goto(resolve(`/feeds/view/${params.id}?p=${page}`));
 	};
 
-	const feedName = $derived(feedRes?.[0]?.feedName);
-	const feedSlug = $derived(feedRes?.[0]?.feedSlug);
+	const feedName = $derived(data[0]?.feedName);
+	const feedSlug = $derived(data[0]?.feedSlug);
+	let feedUrl = $derived(data[0]?.feedUrl);
 </script>
 
 {#snippet paginator(count: number)}
-	<Pagination.Root {count} perPage={20} page={data.page} onPageChange={navigatePage}>
+	<Pagination.Root {count} perPage={20} page={pageParsed} onPageChange={navigatePage}>
 		{#snippet children({ pages, currentPage })}
 			<Pagination.Content>
 				<Pagination.Item>
@@ -95,7 +82,7 @@
 </div>
 
 <div class="py-4">
-	{#each feedRes as item (item.id)}
+	{#each data as item (item.id)}
 		<FeedLink {item} showFeedName={false} showPublishDate />
 	{:else}
 		<p>No items found for this feed.</p>
@@ -103,9 +90,5 @@
 </div>
 
 <div class="flex flex-col">
-	{#await data.itemCount}
-		{@render paginator(0)}
-	{:then count}
-		{@render paginator(count)}
-	{/await}
+	{@render paginator(count)}
 </div>

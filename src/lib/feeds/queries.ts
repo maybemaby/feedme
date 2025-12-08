@@ -9,7 +9,7 @@ import {
 	type InsertFeedItem,
 	type FeedItem
 } from '../server/db/sqlite-schema';
-import { and, count, desc, eq, getTableColumns, inArray, isNull, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import type { FindFeedItemsParams } from '$lib/schema';
 
 type ReadLaterItem = FeedItem & {
@@ -18,7 +18,11 @@ type ReadLaterItem = FeedItem & {
 };
 
 export interface FeedItemService {
-	readonly markReadLater: (itemId: number, userId: string) => ResultAsync<boolean, DbError>;
+	readonly markReadLater: (
+		itemId: number,
+		userId: string,
+		readLater: boolean
+	) => ResultAsync<boolean, DbError>;
 	readonly getReadLaterStatus: (
 		itemIds: number[],
 		userId: string
@@ -27,7 +31,11 @@ export interface FeedItemService {
 }
 
 export const feedItemService: FeedItemService = {
-	markReadLater: function (itemId: number, userId: string): ResultAsync<boolean, DbError> {
+	markReadLater: function (
+		itemId: number,
+		userId: string,
+		markAsReadLater: boolean
+	): ResultAsync<boolean, DbError> {
 		return ResultAsync.fromPromise(
 			(async () => {
 				const db = getDb();
@@ -37,15 +45,17 @@ export const feedItemService: FeedItemService = {
 					.where(and(eq(readLater.itemId, itemId), eq(readLater.userId, userId)))
 					.limit(1);
 
-				if (!exisitingMark) {
+				if (!exisitingMark && markAsReadLater) {
 					await db.insert(readLater).values({ itemId, userId });
 
 					return true;
-				} else {
+				} else if (exisitingMark && !markAsReadLater) {
 					await db
 						.delete(readLater)
 						.where(and(eq(readLater.itemId, itemId), eq(readLater.userId, userId)));
 					return false;
+				} else {
+					return markAsReadLater;
 				}
 			})(),
 			(e) => {
@@ -93,26 +103,6 @@ export const feedItemService: FeedItemService = {
 	}
 };
 
-interface FindFeedItemsParams {
-	feedId?: string;
-	userId?: string;
-	page?: number;
-	slug?: string;
-}
-
-interface FeedItemsResults {
-	id: number;
-	feedId: string;
-	title: string;
-	url: string;
-	content: string;
-	publishedAt: Date;
-	createdAt: Date;
-	feedSlug: string;
-	feedName: string;
-	readLater: number | null;
-}
-
 interface FeedItemsWithCount {
 	feedSlug: string;
 	feedName: string;
@@ -125,27 +115,15 @@ interface FeedItemsWithCount {
 	publishedAt: Date;
 	createdAt: Date;
 	totalCount: number;
+	readLater: number | null;
 }
 
 export interface FeedService {
-	readonly findFeedItems: (params?: FindFeedItemsParams) => Promise<FeedItemsResults[]>;
-	readonly countFeedItems: (
-		params: Omit<FindFeedItemsParams, 'page'>
-	) => Promise<{ count: number }>;
 	readonly upsertFeedItems: (data: InsertFeedItem[]) => Promise<ResultSet>;
 	readonly findFeedItemsWithCount: (params?: FindFeedItemsParams) => Promise<FeedItemsWithCount[]>;
 }
 
 export const feedService: FeedService = {
-	findFeedItems: function (params?: FindFeedItemsParams): Promise<FeedItemsResults[]> {
-		return findFeedItemsBuilder(params);
-	},
-	countFeedItems: async function (
-		params: Omit<FindFeedItemsParams, 'page'>
-	): Promise<{ count: number }> {
-		const [feedCount] = await countFeedItemsBuilder(params);
-		return feedCount;
-	},
 	upsertFeedItems: function (data: InsertFeedItem[]): Promise<ResultSet> {
 		return getDb()
 			.insert(feedItems)
@@ -171,10 +149,12 @@ export const feedService: FeedService = {
 						...getTableColumns(feedItems),
 						feedSlug: feeds.slug,
 						feedName: feeds.name,
-						feedUrl: feeds.url
+						feedUrl: feeds.url,
+						readLater: readLater.id
 					})
 					.from(feedItems)
 					.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
+					.leftJoin(readLater, eq(readLater.itemId, feedItems.id))
 					.where(
 						and(
 							params?.userId ? eq(feeds.userId, params.userId) : undefined,
