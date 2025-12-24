@@ -87,3 +87,24 @@ export const findFeedItemsWithCount = query(
 		return await locals.services.feedService.findFeedItemsWithCount({ ...params, userId });
 	}
 );
+
+export const searchAllResources = query(z.string(), async (queryStr) => {
+	const { locals } = getRequestEvent();
+
+	const userId = locals.session?.user.id;
+
+	if (!userId) {
+		throw error(401, 'Unauthorized');
+	}
+
+	const query = queryStr.toLowerCase();
+
+	const res = await locals.services.feedItemService.searchResources(query, userId);
+
+	if (res.isErr()) {
+		locals.logger.error({ error: res.error }, 'Failed to search feed resources');
+		throw error(500, 'Internal server error');
+	}
+
+	return res.value;
+});
