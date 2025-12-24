@@ -9,8 +9,8 @@ import {
 	type InsertFeedItem,
 	type FeedItem,
 	type SelectFeed
+} from '../server/db/sqlite-schema';
 import { and, count, desc, eq, getTableColumns, inArray, like, or, sql } from 'drizzle-orm';
-import { and, count, desc, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import type { FindFeedItemsParams } from '$lib/schema';
 
 type ReadLaterItem = FeedItem & {
@@ -184,7 +184,7 @@ export const feedService: FeedService = {
 						...getTableColumns(feedItems),
 						feedSlug: feeds.slug,
 						feedName: feeds.name,
-						feedUrl: feeds.url,
+						feedUrl: sql<string>`${feeds.url}`.as('feed_url'),
 						readLater: readLater.id
 					})
 					.from(feedItems)
@@ -205,7 +205,17 @@ export const feedService: FeedService = {
 			.with(filterQuery)
 			.select({
 				totalCount: sql<number>`CAST(COUNT(*) OVER () AS INT)`,
-				...filterQuery._.selectedFields
+				feedUrl: filterQuery.feedUrl,
+				feedName: filterQuery.feedName,
+				feedSlug: filterQuery.feedSlug,
+				id: filterQuery.id,
+				feedId: filterQuery.feedId,
+				readLater: filterQuery.readLater,
+				title: filterQuery.title,
+				url: filterQuery.url,
+				content: filterQuery.content,
+				publishedAt: filterQuery.publishedAt,
+				createdAt: filterQuery.createdAt
 			})
 			.from(filterQuery)
 			.orderBy(desc(filterQuery.publishedAt))
