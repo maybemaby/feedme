@@ -101,3 +101,30 @@ export const getFolders = query(async () => {
 
 	return { folders };
 });
+
+const updateFolderSchema = z.object({
+	id: z.coerce.number(),
+	name: z.string().min(1).max(255).optional(),
+	parentId: z.number().nullable().optional()
+});
+
+export type UpdateFolderRequest = z.infer<typeof updateFolderSchema>;
+
+export const updateFolder = command(updateFolderSchema, async (data) => {
+	const { locals } = getRequestEvent();
+
+	const userId = locals.session?.user.id;
+
+	if (!userId) {
+		throw error(401, 'Unauthorized');
+	}
+
+	const db = getDb();
+
+	await db.update(folder).set(data).where(eq(folder.id, data.id));
+
+	return {
+		success: true,
+		updatedFolderId: data.id
+	};
+});

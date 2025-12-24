@@ -18,8 +18,7 @@
 	import { toast } from 'svelte-sonner';
 	import * as Dropdown from './ui/dropdown-menu/index';
 	import AddFolder from './add-folder.svelte';
-	import { updateFolderResource } from '$lib/hooks/folders.svelte';
-	import { deleteFolder } from '$lib/folders.remote';
+	import { deleteFolder, updateFolder } from '$lib/folders.remote';
 	import { Input } from './ui/input';
 	import { invalidate } from '$app/navigation';
 
@@ -39,20 +38,15 @@
 		openFolders?: Set<string | number>;
 	} = $props();
 
+	let blockBlur = $state(false);
+	let blockBlurTimeout = $state<ReturnType<typeof setTimeout> | null>(null);
 	let addingFolder = $state(false);
 	let editingName = $state(false);
 	let newName = $state(node.label);
 	let open = $derived.by(() => (openFolders ? openFolders.has(node.id) : false));
+	let activeName = $state(node.label);
 
 	let editFolderRef = $state<HTMLInputElement | null>(null);
-
-	// const deleteFolder = deleteFolderResource(() => node.id as number);
-	const editFolder = updateFolderResource(
-		() => node.id as number,
-		() => ({
-			name: newName
-		})
-	);
 
 	const toggle = () => {
 		open = !open;
@@ -80,14 +74,28 @@
 	const onSubmitRename = async (event: SubmitEvent) => {
 		event.preventDefault();
 
-		await editFolder.refetch();
+		await updateFolder({
+			id: node.id,
+			name: newName
+		});
+
 		editingName = false;
+		activeName = newName;
+		invalidate('folders');
 	};
 
 	$effect(() => {
 		if (editingName) {
 			editFolderRef?.focus();
 		}
+	});
+
+	$effect(() => {
+		return () => {
+			if (blockBlurTimeout) {
+				clearTimeout(blockBlurTimeout);
+			}
+		};
 	});
 </script>
 
@@ -111,8 +119,8 @@
 						placeholder="Folder Name"
 						bind:ref={editFolderRef}
 						onblur={() => {
+							if (blockBlur) return;
 							editingName = false;
-							newName = node.label;
 						}}
 						class="rounded-none focus-visible:ring-0"
 						bind:value={newName}
@@ -121,7 +129,7 @@
 			{:else}
 				<button
 					onclick={() => onFolderClick?.(node.id)}
-					class="hover:bg-muted/70 w-full p-1 text-start">{node.label}</button
+					class="hover:bg-muted/70 w-full p-1 text-start">{activeName}</button
 				>
 			{/if}
 			<Dropdown.Root>
@@ -134,7 +142,16 @@
 							<Plus size={14} />
 							Add Subfolder</Dropdown.Item
 						>
-						<Dropdown.Item onclick={() => (editingName = true)}>
+						<Dropdown.Item
+							onclick={() => {
+								editingName = true;
+								blockBlur = true;
+								if (blockBlurTimeout) clearTimeout(blockBlurTimeout);
+								blockBlurTimeout = setTimeout(() => {
+									blockBlur = false;
+								}, 200);
+							}}
+						>
 							<Pencil size={14} /> Rename
 						</Dropdown.Item>
 						<Dropdown.Item onclick={onDelete}>
@@ -162,6 +179,6 @@
 	</div>
 {:else}
 	<button class="hover:bg-muted/70 w-full p-1 text-start" onclick={() => onItemClick?.(node.id)}
-		>{node.label}</button
+		>{activeName}</button
 	>
 {/if}
