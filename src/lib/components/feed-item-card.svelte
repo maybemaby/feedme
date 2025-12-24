@@ -2,8 +2,12 @@
 	import { resolve } from '$app/paths';
 	import { type FeedItem } from './feed-view.svelte';
 	import ReadLater from './read-later.svelte';
+	import { getReadLaterStatus } from '$lib/feeds/feed-items.remote';
 
 	let { item }: { item: FeedItem } = $props();
+
+	let readLaterPromise = getReadLaterStatus(item.id);
+	let readLater = $derived(await readLaterPromise);
 </script>
 
 <div class="hover:border-foreground border p-4">
@@ -19,7 +23,7 @@
 			</a>
 		</div>
 		<div class="mt-2 flex items-center gap-4 text-sm">
-			<ReadLater itemId={item.id} />
+			<ReadLater itemId={item.id} isMarked={readLater} />
 		</div>
 	</article>
 </div>
