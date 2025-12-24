@@ -121,12 +121,15 @@ export const feedItemService: FeedItemService = {
 					.select(getTableColumns(feedItems))
 					.from(feedItems)
 					.leftJoin(feeds, eq(feedItems.feedId, feeds.id))
-					.where(and(eq(feeds.userId, userId), like(sql`lower(${feedItems.title})`, `%${query}%`)));
+					.where(and(eq(feeds.userId, userId), like(sql`lower(${feedItems.title})`, `%${query}%`)))
+					// If the query is very short, limit results to avoid overfetching before anything useful is typed
+					.limit(query.length < 2 ? 50 : 200);
 
 				const feedsRes = await db
 					.select()
 					.from(feeds)
-					.where(and(eq(feeds.userId, userId), like(sql`lower(${feeds.name})`, `%${query}%`)));
+					.where(and(eq(feeds.userId, userId), like(sql`lower(${feeds.name})`, `%${query}%`)))
+					.limit(query.length < 2 ? 20 : 100);
 
 				return {
 					feedItems: items,
