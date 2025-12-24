@@ -7,8 +7,9 @@ import {
 	feeds,
 	readLater,
 	type InsertFeedItem,
-	type FeedItem
-} from '../server/db/sqlite-schema';
+	type FeedItem,
+	type SelectFeed
+import { and, count, desc, eq, getTableColumns, inArray, like, or, sql } from 'drizzle-orm';
 import { and, count, desc, eq, getTableColumns, inArray, or, sql } from 'drizzle-orm';
 import type { FindFeedItemsParams } from '$lib/schema';
 
@@ -28,6 +29,16 @@ export interface FeedItemService {
 		userId: string
 	) => ResultAsync<Record<number, boolean>, DbError>;
 	getReadLaterItems: (userId: string) => Promise<ReadLaterItem[]>;
+	readonly searchResources: (
+		query: string,
+		userId: string
+	) => ResultAsync<
+		{
+			feedItems: FeedItem[];
+			feeds: SelectFeed[];
+		},
+		DbError
+	>;
 }
 
 export const feedItemService: FeedItemService = {
@@ -100,6 +111,30 @@ export const feedItemService: FeedItemService = {
 			.innerJoin(feeds, eq(feedItems.feedId, feeds.id))
 			.where(eq(readLater.userId, userId))
 			.orderBy(desc(readLater.addedAt));
+	},
+	searchResources(query, userId) {
+		return ResultAsync.fromPromise(
+			(async () => {
+				const db = getDb();
+
+				const items = await db
+					.select(getTableColumns(feedItems))
+					.from(feedItems)
+					.leftJoin(feeds, eq(feedItems.feedId, feeds.id))
+					.where(and(eq(feeds.userId, userId), like(sql`lower(${feedItems.title})`, `%${query}%`)));
+
+				const feedsRes = await db
+					.select()
+					.from(feeds)
+					.where(and(eq(feeds.userId, userId), like(sql`lower(${feeds.name})`, `%${query}%`)));
+
+				return {
+					feedItems: items,
+					feeds: feedsRes
+				};
+			})(),
+			(e) => new DbError('Failed to search feed resources', { originalError: e })
+		);
 	}
 };
 

@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import AppSearch from './search.svelte';
+	import AppSearch from '$lib/components/search/revamp.svelte'
 	import AddFeed from '$lib/components/add-feed.svelte';
 	import Sidebar from '$lib/components/sidebar.svelte';
 	import PanelLeft from '@lucide/svelte/icons/panel-left';
