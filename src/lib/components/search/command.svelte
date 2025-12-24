@@ -3,6 +3,7 @@
 	import { Debounced, PressedKeys } from 'runed';
 	import Button from '../ui/button/button.svelte';
 	import SearchIcon from '@lucide/svelte/icons/search';
+	import ArrowUpRight from '@lucide/svelte/icons/arrow-up-right';
 	import { resolve } from '$app/paths';
 	import { searchAllResources } from '$lib/feeds/feeds.remote';
 
@@ -24,8 +25,7 @@
 	Search
 	<kbd class="ml-2 flex items-center gap-0.5 font-mono">
 		<span class="text-lg"> ⌘ </span>
-		<span> + </span>
-		<span> k </span>
+		<span> K </span>
 	</kbd>
 </Button>
 
@@ -49,6 +49,7 @@
 			<Command.Group heading="Items">
 				{#each searchResults.current.feedItems as item (item.id)}
 					<Command.LinkItem href={item.url} target="_blank">
+						<ArrowUpRight class="text-muted-foreground mr-1 inline-block size-4" />
 						{item.title}
 					</Command.LinkItem>
 				{/each}
