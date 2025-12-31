@@ -15,7 +15,10 @@ export default defineConfig({
 					environment: 'jsdom',
 					clearMocks: true,
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					exclude: ['src/lib/server/**'],
+					exclude: [
+						'src/lib/server/**',
+						'src/routes/**',
+					],
 					setupFiles: ['./vitest-setup-client.ts']
 				}
 			},
@@ -28,6 +31,15 @@ export default defineConfig({
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
 			}
-		]
+		],
+		coverage: {
+			include: ['src/**/*.{js,jsx,ts,tsx,svelte}'],
+			exclude: [
+				'src/**/*.test.*',
+				'src/**/*.spec.*',
+				'src/routes/**',
+				'src/lib/server/**'
+			]
+		}
 	}
 });
