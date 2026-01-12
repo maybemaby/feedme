@@ -24,6 +24,7 @@ function createDb() {
 		}
 	});
 }
+
 let _db: ReturnType<typeof createDb>;
 
 export function getDb() {

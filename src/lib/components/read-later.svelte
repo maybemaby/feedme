@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { toggleReadLater } from '$lib/feeds/feed-items.remote';
-	import {  untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import { Button } from './ui/button';
 	import BookMark from '@lucide/svelte/icons/bookmark';
 	import X from '@lucide/svelte/icons/bookmark-x';
