@@ -1,10 +1,17 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
 	import * as Table from '$lib/components/ui/table/index';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import Download from '@lucide/svelte/icons/download';
+	import { getUserFeeds } from '$lib/feeds/feeds.remote';
 
-	let { data }: PageProps = $props();
+	let feeds = await getUserFeeds();
 </script>
+
+<div class="mb-4">
+	<Button class="rounded-none" href="/feeds/export">
+		<Download /> Export Feeds
+	</Button>
+</div>
 
 <Table.Root class="max-w-screen-xl">
 	<Table.Header class="border">
@@ -14,7 +21,7 @@
 		</Table.Row>
 	</Table.Header>
 	<Table.Body class="border">
-		{#each data.feeds as feed (feed.id)}
+		{#each feeds as feed (feed.id)}
 			<Table.Row>
 				<Table.Cell class="border text-lg">{feed.name}</Table.Cell>
 				<Table.Cell class="text-center">

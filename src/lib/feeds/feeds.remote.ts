@@ -5,6 +5,7 @@ import { getFeedContent, parseFeedContent } from '../server/feeds';
 import { slugify } from '../utils';
 import { randomUUID } from 'crypto';
 import { getDb } from '../server/db/db';
+import { eq } from 'drizzle-orm';
 import { feeds, type InsertFeedItem } from '../server/db/sqlite-schema';
 import { findFeedItemsSchema } from '$lib/schema';
 
@@ -107,4 +108,17 @@ export const searchAllResources = query(z.string(), async (queryStr) => {
 	}
 
 	return res.value;
+});
+
+export const getUserFeeds = query(z.void(), async () => {
+	const { locals } = getRequestEvent();
+
+	const userId = locals.session?.user.id;
+	if (!userId) {
+		throw error(401, 'Unauthorized');
+	}
+
+	const feedsList = await getDb().select().from(feeds).where(eq(feeds.userId, userId));
+
+	return feedsList;
 });
