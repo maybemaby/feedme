@@ -30,7 +30,7 @@
 </Button>
 
 <Command.Dialog bind:open shouldFilter={false}>
-	<Command.Input placeholder="Search..." bind:value={searchQuery} />
+	<Command.Input placeholder="Search..." bind:value={searchQuery} class="text-[16px]" />
 	<Command.List>
 		<Command.Empty>No results found.</Command.Empty>
 		{#if searchResults.loading}
