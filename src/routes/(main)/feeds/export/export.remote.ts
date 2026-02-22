@@ -1,4 +1,4 @@
-import { query, getRequestEvent } from '$app/server';
+import { query, form, getRequestEvent } from '$app/server';
 import { getDb } from '$lib/server/db/db';
 import { feeds, type SelectFeed } from '$lib/server/db/sqlite-schema';
 import { error } from '@sveltejs/kit';
@@ -11,8 +11,7 @@ const exportFeedsSchema = z.object({
 });
 
 const importFeedsSchema = z.object({
-	jsonContent: z.string(),
-	fileName: z.string().optional()
+	importFile: z.file().max(5 * 1024 * 1024) // 5MB limit
 });
 
 export type ExportData = {
@@ -63,19 +62,22 @@ export const exportFeeds = query(exportFeedsSchema, async (data) => {
 	return exportData;
 });
 
-export const importFeeds = query(importFeedsSchema, async (data) => {
+export const importFeeds = form(importFeedsSchema, async (data) => {
 	const { locals } = getRequestEvent();
+	const logger = locals.logger;
 
 	const userId = locals.session?.user.id;
 	if (!userId) {
 		throw error(401, 'Unauthorized');
 	}
 
+	const fileContent = await data.importFile.text();
+
 	let parsedData: ExportData;
 
 	try {
-		parsedData = JSON.parse(data.jsonContent);
-	} catch (e) {
+		parsedData = JSON.parse(fileContent);
+	} catch (e: unknown) {
 		throw error(400, 'Invalid JSON file format');
 	}
 

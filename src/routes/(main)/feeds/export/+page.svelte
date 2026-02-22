@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { SvelteSet } from 'svelte/reactivity';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { exportFeeds, importFeeds, type ImportResult } from './export.remote';
+	import { exportFeeds, importFeeds } from './export.remote';
 	import { getUserFeeds } from '$lib/feeds/feeds.remote';
 
 	let feeds = $state(await getUserFeeds());
@@ -14,11 +14,11 @@
 	let exportSuccess = $state(false);
 
 	// Import state
-	let isImporting = $state(false);
+	let isImporting = $derived(importFeeds.pending > 0);
 	let importError = $state<string | null>(null);
-	let importSuccess = $state(false);
-	let importResult = $state<ImportResult | null>(null);
-	let fileInput = $state<HTMLInputElement | undefined>();
+	let importResult = $derived(importFeeds.result);
+	let importSuccess = $derived(importFeeds.result?.errors.length === 0);
+	let selectedFile = $state<File | null>(null);
 
 	function toggleFeed(feedId: string) {
 		if (selectedFeedIds.has(feedId)) {
@@ -81,49 +81,9 @@
 		}
 	}
 
-	async function handleImport() {
-		if (!fileInput?.files?.[0]) {
-			importError = 'Please select a file to import';
-			return;
-		}
-
-		const file = fileInput.files[0];
-
-		// Check file size (5MB limit)
-		if (file.size > 5 * 1024 * 1024) {
-			importError = 'File size exceeds 5MB limit';
-			return;
-		}
-
-		isImporting = true;
-		importError = null;
-		importSuccess = false;
-		importResult = null;
-
-		try {
-			const content = await file.text();
-			const result = await importFeeds({ jsonContent: content, fileName: file.name });
-
-			importResult = result;
-			importSuccess = true;
-
-			// Reset file input
-			if (fileInput) {
-				fileInput.value = '';
-			}
-
-			// Refresh the feeds list
-			feeds = await getUserFeeds();
-
-			// Clear success message after 5 seconds
-			setTimeout(() => {
-				importSuccess = false;
-			}, 5000);
-		} catch (err) {
-			importError = err instanceof Error ? err.message : 'Failed to import feeds';
-		} finally {
-			isImporting = false;
-		}
+	function handleFileChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		selectedFile = input.files?.[0] ?? null;
 	}
 </script>
 
@@ -200,7 +160,7 @@
 				<Button
 					onclick={handleExport}
 					disabled={selectedFeedIds.size === 0 || isExporting}
-					class="w-full"
+					class="w-full rounded-none"
 				>
 					{#if isExporting}
 						Exporting...
@@ -220,56 +180,57 @@
 				Select a JSON file exported from Feed Manager to import feeds.
 			</p>
 
-			<div class="mb-6 rounded border border-dashed p-6">
-				<input
-					bind:this={fileInput}
-					type="file"
-					accept=".json"
-					class="block w-full text-sm text-gray-900"
-					disabled={isImporting}
-				/>
-				<p class="mt-2 text-xs text-gray-500">Max file size: 5MB</p>
-			</div>
-
-			{#if importError}
-				<div class="mb-4 rounded bg-red-100 p-3 text-sm text-red-700">
-					{importError}
+			<form class="space-y-6" enctype="multipart/form-data" {...importFeeds}>
+				<div class="rounded border border-dashed p-6">
+					<input
+						accept=".json"
+						class="block w-full text-sm text-gray-900"
+						disabled={isImporting}
+						onchange={handleFileChange}
+						{...importFeeds.fields.importFile.as('file')}
+					/>
+					<p class="mt-2 text-xs text-gray-500">Max file size: 5MB</p>
+					{#if selectedFile}
+						<p class="mt-2 text-xs font-semibold text-gray-700">Selected: {selectedFile.name}</p>
+					{/if}
 				</div>
-			{/if}
 
-			{#if importSuccess && importResult}
-				<div class="mb-4 rounded bg-green-100 p-3 text-sm text-green-700">
-					<div class="font-semibold">Import completed!</div>
-					<div class="mt-1 text-xs">
-						<div>Imported: {importResult.imported} feeds</div>
-						{#if importResult.skipped > 0}
-							<div>Skipped: {importResult.skipped} duplicate feeds</div>
-						{/if}
-						{#if importResult.errors.length > 0}
-							<div class="mt-2">
-								<div class="font-semibold">Errors:</div>
-								<ul class="mt-1 list-inside list-disc">
-									{#each importResult.errors as error (error)}
-										<li>{error}</li>
-									{/each}
-								</ul>
-							</div>
-						{/if}
+				{#if importError}
+					<div class="rounded bg-red-100 p-3 text-sm text-red-700">
+						{importError}
 					</div>
-				</div>
-			{/if}
-
-			<Button
-				onclick={handleImport}
-				disabled={!fileInput?.files?.[0] || isImporting}
-				class="w-full"
-			>
-				{#if isImporting}
-					<span>Importing...</span>
-				{:else}
-					Import Feeds
 				{/if}
-			</Button>
+
+				{#if importSuccess && importResult}
+					<div class="rounded bg-green-100 p-3 text-sm text-green-700">
+						<div class="font-semibold">Import completed!</div>
+						<div class="mt-1 text-xs">
+							<div>Imported: {importResult.imported} feeds</div>
+							{#if importResult.skipped > 0}
+								<div>Skipped: {importResult.skipped} duplicate feeds</div>
+							{/if}
+							{#if importResult.errors.length > 0}
+								<div class="mt-2">
+									<div class="font-semibold">Errors:</div>
+									<ul class="mt-1 list-inside list-disc">
+										{#each importResult.errors as error (error)}
+											<li>{error}</li>
+										{/each}
+									</ul>
+								</div>
+							{/if}
+						</div>
+					</div>
+				{/if}
+
+				<Button type="submit" disabled={isImporting} class="w-full rounded-none">
+					{#if isImporting}
+						<span>Importing...</span>
+					{:else}
+						Import Feeds
+					{/if}
+				</Button>
+			</form>
 		</div>
 	{/if}
 </div>
