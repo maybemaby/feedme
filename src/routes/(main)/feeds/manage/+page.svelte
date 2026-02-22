@@ -9,7 +9,7 @@
 
 <div class="mb-4">
 	<Button class="rounded-none" href="/feeds/export">
-		<Download /> Export Feeds
+		<Download /> Export / Import Feeds
 	</Button>
 </div>
 

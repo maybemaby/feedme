@@ -16,3 +16,4 @@ This project is a self hosted RSS feed aggregator.
 
 - Do not write git commands without permission.
 - Use pnpm package manager
+- Utilize existing theme tokens in src/app.css where appropriate.

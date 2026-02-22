@@ -4,15 +4,27 @@ import { feeds, type SelectFeed } from '$lib/server/db/sqlite-schema';
 import { error } from '@sveltejs/kit';
 import { and, eq, inArray } from 'drizzle-orm';
 import * as z from 'zod';
+import { randomUUID } from 'crypto';
 
 const exportFeedsSchema = z.object({
 	feedIds: z.array(z.string()).min(1, 'At least one feed must be selected')
+});
+
+const importFeedsSchema = z.object({
+	jsonContent: z.string(),
+	fileName: z.string().optional()
 });
 
 export type ExportData = {
 	version: string;
 	exportDate: string;
 	feeds: SelectFeed[];
+};
+
+export type ImportResult = {
+	imported: number;
+	skipped: number;
+	errors: string[];
 };
 
 export const exportFeeds = query(exportFeedsSchema, async (data) => {
@@ -49,4 +61,71 @@ export const exportFeeds = query(exportFeedsSchema, async (data) => {
 	};
 
 	return exportData;
+});
+
+export const importFeeds = query(importFeedsSchema, async (data) => {
+	const { locals } = getRequestEvent();
+
+	const userId = locals.session?.user.id;
+	if (!userId) {
+		throw error(401, 'Unauthorized');
+	}
+
+	let parsedData: ExportData;
+
+	try {
+		parsedData = JSON.parse(data.jsonContent);
+	} catch (e) {
+		throw error(400, 'Invalid JSON file format');
+	}
+
+	// Validate the structure
+	if (!parsedData.version || !parsedData.feeds || !Array.isArray(parsedData.feeds)) {
+		throw error(400, 'Invalid export file format - missing required fields');
+	}
+
+	// Import feeds, silently skipping duplicates (by URL)
+	const result: ImportResult = {
+		imported: 0,
+		skipped: 0,
+		errors: []
+	};
+
+	const db = getDb();
+
+	for (const feedToImport of parsedData.feeds) {
+		try {
+			// Check if feed with same URL already exists for this user
+			const existingFeed = await db
+				.select()
+				.from(feeds)
+				.where(and(eq(feeds.userId, userId), eq(feeds.url, feedToImport.url)))
+				.limit(1);
+
+			if (existingFeed.length > 0) {
+				// Silently skip duplicate
+				result.skipped++;
+				continue;
+			}
+
+			// Insert new feed (flattened to root - no folderId)
+			await db.insert(feeds).values({
+				id: randomUUID(),
+				userId: userId,
+				url: feedToImport.url,
+				name: feedToImport.name,
+				slug: feedToImport.slug,
+				createdAt: new Date(),
+				updatedAt: new Date()
+				// folderId intentionally left as null (root level)
+			});
+
+			result.imported++;
+		} catch (err) {
+			const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+			result.errors.push(`Failed to import "${feedToImport.name}": ${errorMsg}`);
+		}
+	}
+
+	return result;
 });
