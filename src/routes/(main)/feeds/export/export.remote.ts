@@ -64,7 +64,6 @@ export const exportFeeds = query(exportFeedsSchema, async (data) => {
 
 export const importFeeds = form(importFeedsSchema, async (data) => {
 	const { locals } = getRequestEvent();
-	const logger = locals.logger;
 
 	const userId = locals.session?.user.id;
 	if (!userId) {
@@ -97,32 +96,28 @@ export const importFeeds = form(importFeedsSchema, async (data) => {
 
 	for (const feedToImport of parsedData.feeds) {
 		try {
-			// Check if feed with same URL already exists for this user
-			const existingFeed = await db
-				.select()
-				.from(feeds)
-				.where(and(eq(feeds.userId, userId), eq(feeds.url, feedToImport.url)))
-				.limit(1);
-
-			if (existingFeed.length > 0) {
-				// Silently skip duplicate
-				result.skipped++;
-				continue;
-			}
-
 			// Insert new feed (flattened to root - no folderId)
-			await db.insert(feeds).values({
-				id: randomUUID(),
-				userId: userId,
-				url: feedToImport.url,
-				name: feedToImport.name,
-				slug: feedToImport.slug,
-				createdAt: new Date(),
-				updatedAt: new Date()
-				// folderId intentionally left as null (root level)
-			});
+			const res = await db
+				.insert(feeds)
+				.values({
+					id: randomUUID(),
+					userId: userId,
+					url: feedToImport.url,
+					name: feedToImport.name,
+					slug: feedToImport.slug,
+					createdAt: new Date(),
+					updatedAt: new Date()
+					// folderId intentionally left as null (root level)
+				})
+				.onConflictDoNothing({
+					target: [feeds.url, feeds.userId]
+				});
 
-			result.imported++;
+			if (res.rowsAffected === 0) {
+				result.skipped++;
+			} else {
+				result.imported++;
+			}
 		} catch (err) {
 			const errorMsg = err instanceof Error ? err.message : 'Unknown error';
 			result.errors.push(`Failed to import "${feedToImport.name}": ${errorMsg}`);

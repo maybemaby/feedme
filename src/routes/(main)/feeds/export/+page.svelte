@@ -181,7 +181,7 @@
 			</p>
 
 			<form class="space-y-6" enctype="multipart/form-data" {...importFeeds}>
-				<div class="rounded border border-dashed p-6">
+				<div class="bg-card rounded border border-dashed p-6">
 					<input
 						accept=".json"
 						class="block w-full text-sm text-gray-900"
