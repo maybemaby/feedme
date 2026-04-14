@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getReadLaterStatus } from '$lib/feeds/feed-items.remote';
+	import { getReadLaterStatus, toggleReadLater } from '$lib/feeds/feed-items.remote';
 	import type { FeedItem } from '$lib/server/db/sqlite-schema';
 	import ReadLater from './read-later.svelte';
 
@@ -16,6 +16,10 @@
 	let readLaterPromise = getReadLaterStatus(item.id);
 
 	let readLater = $derived(await readLaterPromise);
+
+	const toggleFn = (itemId: number, readLater: boolean) => {
+		toggleReadLater({ itemId, readLater }).then();
+	};
 </script>
 
 <article class="py-2">
@@ -37,6 +41,6 @@
 	</div>
 
 	<div class="mt-2 flex items-center gap-4 text-sm">
-		<ReadLater itemId={item.id} isMarked={readLater} />
+		<ReadLater itemId={item.id} isMarked={readLater} onToggle={toggleFn} />
 	</div>
 </article>

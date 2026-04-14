@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { toggleReadLater } from '$lib/feeds/feed-items.remote';
 	import { untrack } from 'svelte';
 	import { Button } from './ui/button';
 	import BookMark from '@lucide/svelte/icons/bookmark';
@@ -8,10 +7,12 @@
 
 	let {
 		itemId,
-		isMarked = false
+		isMarked = false,
+		onToggle
 	}: {
 		itemId: number;
 		isMarked?: boolean;
+		onToggle?: (itemId: number, readLater: boolean) => void;
 	} = $props();
 
 	let changedOnce = $state(false);
@@ -30,16 +31,20 @@
 
 		untrack(() => {
 			if (!changedOnce) return;
-			toggleReadLater({ itemId, readLater: markedDebounced.current }).then();
+			if (onToggle) {
+				onToggle(itemId, markedDebounced.current);
+			}
 		});
 	});
 </script>
 
-<Button type="button" size="sm" variant="ghost" onclick={handleToggle}>
+<Button type="button" size="sm" variant="ghost" onclick={handleToggle} aria-pressed={marked}>
 	{#if marked}
 		<X />
+		<span class="sr-only">Remove from Read Later</span>
 	{:else}
 		<BookMark />
+		<span class="sr-only">Add to Read Later</span>
 	{/if}
 
 	{msg}
