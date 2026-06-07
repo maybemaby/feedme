@@ -6,13 +6,11 @@ import { feeds } from '../db/sqlite-schema';
 import { getFeedContent, parseFeedContent } from '../feeds';
 import type { FeedService } from '$lib/feeds/queries';
 
-export async function refreshFeed(feedId: string, feedService: FeedService, logger?: Logger) {
-	const [feed] = await getDb().select().from(feeds).where(eq(feeds.id, feedId));
-
-	if (!feed) {
-		return err({ cause: 'feed-not-found' as const, message: 'Feed not found' });
-	}
-
+export async function refreshFeed(
+	feed: { id: string; url: string },
+	feedService: FeedService,
+	logger?: Logger
+) {
 	const contentRes = await getFeedContent(feed.url);
 
 	if (contentRes.isErr()) {

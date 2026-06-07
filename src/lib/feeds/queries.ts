@@ -159,6 +159,7 @@ interface FeedItemsWithCount {
 export interface FeedService {
 	readonly upsertFeedItems: (data: InsertFeedItem[]) => Promise<ResultSet>;
 	readonly findFeedItemsWithCount: (params?: FindFeedItemsParams) => Promise<FeedItemsWithCount[]>;
+	readonly getFeedById: (feedId: string) => ResultAsync<SelectFeed | null, DbError>;
 }
 
 export const feedService: FeedService = {
@@ -226,6 +227,16 @@ export const feedService: FeedService = {
 			.offset((page - 1) * 20);
 
 		return res;
+	},
+	getFeedById: function (feedId: string): ResultAsync<SelectFeed | null, DbError> {
+		return ResultAsync.fromPromise(
+			(async () => {
+				const [feed] = await getDb().select().from(feeds).where(eq(feeds.id, feedId)).limit(1);
+
+				return feed || null;
+			})(),
+			(e) => new DbError('Failed to get feed by ID', { originalError: e })
+		);
 	}
 };
 
